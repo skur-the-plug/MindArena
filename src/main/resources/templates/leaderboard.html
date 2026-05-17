@@ -11,7 +11,7 @@
 <main class="page">
     <section class="hero-band compact">
         <div>
-            <p class="eyebrow">Ranking</p>
+            <p class="eyebrow">Prestige system</p>
             <h1>Leaderboards</h1>
             <p class="muted">Switch between global XP, arena performance, challenge performance, and rank progression.</p>
         </div>
@@ -19,19 +19,19 @@
 
     <section class="leaderboard-switcher">
         <a class="scope-tile" th:classappend="${scope == 'global'} ? ' active' : ''" th:href="@{/leaderboard(scope='global')}">
-            <strong>Global XP</strong>
+            <strong>Global standings</strong>
             <span>All player score</span>
         </a>
         <a class="scope-tile" th:classappend="${scope == 'arena'} ? ' active' : ''" th:href="@{/leaderboard(scope='arena')}">
-            <strong>Arena Board</strong>
+            <strong>Arena board</strong>
             <span>XP inside one arena</span>
         </a>
         <a class="scope-tile" th:classappend="${scope == 'challenge'} ? ' active' : ''" th:href="@{/leaderboard(scope='challenge')}">
-            <strong>Challenge Board</strong>
+            <strong>Mission board</strong>
             <span>One challenge race</span>
         </a>
         <a class="scope-tile" th:classappend="${scope == 'ranks'} ? ' active' : ''" th:href="@{/leaderboard(scope='ranks')}">
-            <strong>Rank Ladder</strong>
+            <strong>Rank ladder</strong>
             <span>XP intervals and privileges</span>
         </a>
     </section>

@@ -26,8 +26,8 @@
                 <div class="template-form-heading">
                     <span class="template-icon" th:text="${selectedSubmissionTemplate.icon}">code</span>
                     <div>
-                        <p class="eyebrow">Submission template</p>
-                        <h2 th:text="${selectedSubmissionTemplate.name}">Submit your answer</h2>
+                        <p class="eyebrow">Artifact submission</p>
+                        <h2 th:text="${selectedSubmissionTemplate.name}">Submit your artifact</h2>
                         <p class="muted" th:text="${selectedSubmissionTemplate.description}">Template description</p>
                     </div>
                 </div>
@@ -181,16 +181,16 @@
                         <label class="field-card"><span>07</span> Final Synthesis<textarea class="js-template-field" data-field="finalSynthesis" rows="4" required placeholder="Summarize your conclusion in a balanced way..."></textarea></label>
                     </div>
                 </div>
-                <button th:class="|primary-button template-submit submit-${selectedSubmissionTemplate.arenaClass}|" type="submit">Submit answer</button>
+                <button th:class="|primary-button template-submit submit-${selectedSubmissionTemplate.arenaClass}|" type="submit">Submit artifact</button>
             </form>
         </div>
 
         <aside>
             <div class="panel chat-cta">
-                <p class="eyebrow">Challenge room</p>
+                <p class="eyebrow">Comm link</p>
                 <h2>Live discussion</h2>
-                <p class="muted">Use the challenge chat for clarifications, hints, and post-match discussion.</p>
-                <a class="secondary-button" th:href="@{/chat(roomType='CHALLENGE', challengeId=${challenge.id})}">Open chat room</a>
+                <p class="muted">Use the mission chat for clarifications, hints, and post-match discussion.</p>
+                <a class="secondary-button" th:href="@{/chat(roomType='CHALLENGE', challengeId=${challenge.id})}">Open comm link</a>
             </div>
             <div class="panel chat-cta" th:if="${canManageChallenge}">
                 <div class="section-heading flush">

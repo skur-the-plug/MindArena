@@ -13,19 +13,19 @@
 
     <section class="hero-band">
         <div>
-            <p class="eyebrow">Player dashboard</p>
-            <h1 th:text="'Welcome, ' + ${user.fullName}">Welcome</h1>
-            <p class="lead">Compete across arenas, publish sharp answers, and build a public score from peer votes.</p>
+            <p class="eyebrow">Mission hub</p>
+            <h1 th:text="'Welcome back, ' + ${user.fullName}">Welcome back</h1>
+            <p class="lead">The neural link is active. Deploy into arenas, submit digital artifacts, and convert peer signal into prestige.</p>
         </div>
         <div class="hero-actions">
-            <a class="secondary-button" th:href="@{/leaderboard}">View ranking</a>
-            <a class="primary-button" th:href="@{/arenas}">Browse arenas</a>
+            <a class="secondary-button" th:href="@{/leaderboard}">View prestige</a>
+            <a class="primary-button" th:href="@{/arenas}">Deploy mission</a>
         </div>
     </section>
 
     <section class="metric-grid">
         <div class="metric">
-            <span>Current score</span>
+            <span>Total score</span>
             <strong th:text="${user.score} + ' XP'">0 XP</strong>
         </div>
         <div class="metric">
@@ -33,7 +33,7 @@
             <strong th:text="${rank.label}">Syntax Initiate</strong>
         </div>
         <div class="metric">
-            <span>Joined arenas</span>
+            <span>Active zones</span>
             <strong th:text="${#lists.size(memberships)}">0</strong>
         </div>
     </section>
@@ -44,7 +44,7 @@
             <div class="section-heading">
                 <div>
                     <p class="eyebrow">Available now</p>
-                    <h2>Active challenges</h2>
+                    <h2>Active missions</h2>
                 </div>
                 <a th:href="@{/arenas}">View arenas</a>
             </div>

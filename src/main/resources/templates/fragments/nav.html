@@ -1,30 +1,51 @@
-<nav class="topbar" th:fragment="nav" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-    <div class="nav-side nav-left">
-        <a class="brand" th:href="@{/dashboard}">
-            <span class="brand-mark">M</span>
-            <span>MindArena</span>
+<div th:fragment="nav" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <aside class="side-rail">
+        <a class="operator-card" th:href="@{/profile}">
+            <span class="operator-avatar">OP</span>
+            <span>
+                <strong>Operator</strong>
+                <small>Neural link active</small>
+            </span>
         </a>
-        <a th:href="@{/chat}">Messages</a>
-        <a th:href="@{/news}">News</a>
-        <a th:href="@{/profile}">Profile</a>
-        <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin}">Admin</a>
-        <form th:action="@{/logout}" method="post">
-            <button class="link-button" type="submit">Logout</button>
-        </form>
+        <a class="deploy-button" th:href="@{/arenas}">Deploy mission</a>
+        <nav class="rail-links" aria-label="Primary">
+            <a th:href="@{/dashboard}"><span>Mission Hub</span></a>
+            <a th:href="@{/arenas}"><span>Battle Arena</span></a>
+            <a th:href="@{/leaderboard}"><span>Prestige Board</span></a>
+            <a th:href="@{/chat}"><span>Neural Link</span></a>
+            <a th:href="@{/news}"><span>Data Archives</span></a>
+            <a th:href="@{/profile}"><span>Command Center</span></a>
+            <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin}"><span>Admin Core</span></a>
+        </nav>
+    </aside>
+
+    <nav class="topbar">
+        <div class="nav-side nav-left">
+            <a class="brand" th:href="@{/dashboard}">
+                <span class="brand-mark">M</span>
+                <span>MindArena</span>
+            </a>
+        </div>
+        <div class="nav-center">
+            <a th:href="@{/dashboard}">Dashboard</a>
+            <a th:href="@{/arenas}">Arenas</a>
+            <a th:href="@{/leaderboard}">Leaderboard</a>
+            <a th:href="@{/news}">News</a>
+            <a th:href="@{/chat}">Chat</a>
+        </div>
+        <div class="nav-side nav-right">
+            <form th:action="@{/logout}" method="post">
+                <button class="link-button" type="submit">Logout</button>
+            </form>
+        </div>
+    </nav>
+    <button class="floating-chat-button js-chat-popover-toggle" type="button" title="Open chat" aria-label="Open chat">
+        <span></span>
+    </button>
+    <div class="chat-popover js-chat-popover" hidden>
+        <p class="eyebrow">Chat</p>
+        <a th:href="@{/chat}">Global room</a>
+        <a th:href="@{/chat(roomType='ARENA')}">Arena rooms</a>
+        <a th:href="@{/chat(roomType='CHALLENGE')}">Challenge rooms</a>
     </div>
-    <div class="nav-center">
-        <a th:href="@{/dashboard}">Dashboard</a>
-        <a th:href="@{/arenas}">Arenas</a>
-        <a th:href="@{/leaderboard}">Leaderboard</a>
-    </div>
-    <div class="nav-side nav-right"></div>
-</nav>
-<button class="floating-chat-button js-chat-popover-toggle" type="button" title="Open chat" aria-label="Open chat">
-    <span></span>
-</button>
-<div class="chat-popover js-chat-popover" hidden>
-    <p class="eyebrow">Chat</p>
-    <a th:href="@{/chat}">Global room</a>
-    <a th:href="@{/chat(roomType='ARENA')}">Arena rooms</a>
-    <a th:href="@{/chat(roomType='CHALLENGE')}">Challenge rooms</a>
 </div>

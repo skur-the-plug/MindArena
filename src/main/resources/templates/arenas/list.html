@@ -12,9 +12,9 @@
     <p class="flash" th:if="${message}" th:text="${message}"></p>
     <section class="hero-band compact">
         <div>
-            <p class="eyebrow">Choose your domain</p>
-            <h1>Arenas</h1>
-            <p class="muted">Join focused spaces for coding, business, creativity, and debate challenges.</p>
+            <p class="eyebrow">Zone selection</p>
+            <h1>Select your arena</h1>
+            <p class="muted">Deploy into specialized combat zones for coding, business, creativity, and debate missions.</p>
         </div>
     </section>
     <section class="card-grid">
@@ -25,9 +25,9 @@
                 <p th:text="${arena.description}">Description</p>
             </div>
             <div class="action-row">
-                <a class="secondary-button" th:href="@{/arenas/{id}(id=${arena.id})}">View</a>
+                <a class="secondary-button" th:href="@{/arenas/{id}(id=${arena.id})}">Scan zone</a>
                 <form th:action="@{/arenas/{id}/join(id=${arena.id})}" method="post">
-                    <button class="primary-button" type="submit">Join</button>
+                    <button class="primary-button" type="submit">Enter zone</button>
                 </form>
             </div>
         </article>
