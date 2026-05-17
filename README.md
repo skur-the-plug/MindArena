@@ -1,6 +1,8 @@
 # MindArena
 
-MindArena is a Spring Boot + MariaDB MVP for competitive social learning. Users join arenas, answer challenges, vote on submissions, and climb arena leaderboards.
+MindArena is a Spring Boot + MariaDB MVP for competitive social learning. Users join themed arenas, complete challenge missions, submit structured artifacts, vote on peer submissions, and climb prestige leaderboards.
+
+The current frontend uses a dark "Cyber Arena" interface with a mission hub, arena zones, challenge briefing pages, chat entry points, and leaderboard views.
 
 ## MVP Features
 
@@ -8,9 +10,10 @@ MindArena is a Spring Boot + MariaDB MVP for competitive social learning. Users 
 - Profile with skills and interests
 - Arena browsing and joining
 - Challenge browsing by arena
-- Text submissions
+- Structured submission templates for coding, business, creativity, and debate challenges
 - Upvote system with duplicate-vote prevention
-- Arena leaderboard
+- Global, arena, challenge, and rank leaderboards
+- Chat rooms for global, arena, and challenge discussion
 - Admin pages for challenge creation and moderation
 
 ## Stack
