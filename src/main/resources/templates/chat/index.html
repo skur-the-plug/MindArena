@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chat | MindArena</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<main class="page">
+    <p class="flash error" th:if="${error}" th:text="${error}"></p>
+    <section class="hero-band compact">
+        <div>
+            <p class="eyebrow">Live rooms</p>
+            <h1>Chat</h1>
+            <p class="muted">Move between global, arena, and challenge rooms without leaving the workspace.</p>
+        </div>
+    </section>
+
+    <section class="chat-layout">
+        <aside class="panel">
+            <form class="form-stack js-chat-room-form" th:action="@{/chat}" method="get">
+                <label>Room
+                    <select class="js-chat-room-type" name="roomType">
+                        <option th:each="type : ${roomTypes}"
+                                th:value="${type.name()}"
+                                th:selected="${type == roomType}"
+                                th:text="${type.label}">Global</option>
+                    </select>
+                </label>
+                <label class="js-chat-arena-field">Arena
+                    <select class="js-chat-arena-select" name="arenaId">
+                        <option th:each="arena : ${arenas}"
+                                th:value="${arena.id}"
+                                th:selected="${selectedArena != null and selectedArena.id == arena.id}"
+                                th:text="${arena.name}">Arena</option>
+                    </select>
+                </label>
+                <label class="js-chat-challenge-field">Challenge
+                    <select class="js-chat-challenge-select" name="challengeId">
+                        <option th:each="challenge : ${challenges}"
+                                th:value="${challenge.id}"
+                                th:attr="data-arena-id=${challenge.arena.id}"
+                                th:selected="${selectedChallenge != null and selectedChallenge.id == challenge.id}"
+                                th:text="|${challenge.title} / ${challenge.arena.name}|">Challenge</option>
+                    </select>
+                </label>
+                <button class="primary-button" type="submit">Switch room</button>
+            </form>
+        </aside>
+
+        <section class="panel chat-panel">
+            <div class="section-heading flush">
+                <div>
+                    <p class="eyebrow" th:text="|${roomType.label} room|">Global room</p>
+                    <h2 th:text="${roomTitle}">Room</h2>
+                </div>
+            </div>
+
+            <div class="chat-stream js-chat-stream" data-chat-auto-refresh="true">
+                <p class="empty-state" th:if="${#lists.isEmpty(messages)}">No messages in this room yet.</p>
+                <article class="chat-message" th:each="message : ${messages}">
+                    <div>
+                        <span class="profile-chip">
+                            <img th:src="${message.author.avatarUrl}" alt="">
+                            <strong th:text="${message.author.fullName}">Player</strong>
+                        </span>
+                        <span th:text="${#temporals.format(message.createdAt, 'dd MMM HH:mm')}">Time</span>
+                    </div>
+                    <p th:text="${message.content}">Message</p>
+                </article>
+            </div>
+
+            <form class="chat-composer" th:action="@{/chat/messages}" method="post">
+                <input type="hidden" name="roomType" th:value="${roomType.name()}">
+                <input type="hidden" name="arenaId" th:if="${selectedArena != null}" th:value="${selectedArena.id}">
+                <input type="hidden" name="challengeId" th:if="${selectedChallenge != null}" th:value="${selectedChallenge.id}">
+                <label>Message
+                    <textarea name="content" rows="3" maxlength="1000" required></textarea>
+                </label>
+                <button class="primary-button" type="submit">Send</button>
+            </form>
+        </section>
+    </section>
+</main>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Leaderboard | MindArena</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<main class="page">
+    <section class="hero-band compact">
+        <div>
+            <p class="eyebrow">Ranking</p>
+            <h1>Leaderboards</h1>
+            <p class="muted">Switch between global XP, arena performance, challenge performance, and rank progression.</p>
+        </div>
+    </section>
+
+    <section class="leaderboard-switcher">
+        <a class="scope-tile" th:classappend="${scope == 'global'} ? ' active' : ''" th:href="@{/leaderboard(scope='global')}">
+            <strong>Global XP</strong>
+            <span>All player score</span>
+        </a>
+        <a class="scope-tile" th:classappend="${scope == 'arena'} ? ' active' : ''" th:href="@{/leaderboard(scope='arena')}">
+            <strong>Arena Board</strong>
+            <span>XP inside one arena</span>
+        </a>
+        <a class="scope-tile" th:classappend="${scope == 'challenge'} ? ' active' : ''" th:href="@{/leaderboard(scope='challenge')}">
+            <strong>Challenge Board</strong>
+            <span>One challenge race</span>
+        </a>
+        <a class="scope-tile" th:classappend="${scope == 'ranks'} ? ' active' : ''" th:href="@{/leaderboard(scope='ranks')}">
+            <strong>Rank Ladder</strong>
+            <span>XP intervals and privileges</span>
+        </a>
+    </section>
+
+    <section class="panel" th:if="${scope == 'arena'}">
+        <form class="form-grid" th:action="@{/leaderboard}" method="get">
+            <input type="hidden" name="scope" value="arena">
+            <label>Arena
+                <select name="arenaId">
+                    <option th:each="arena : ${arenas}"
+                            th:value="${arena.id}"
+                            th:selected="${selectedArena != null and selectedArena.id == arena.id}"
+                            th:text="${arena.name}">Arena</option>
+                </select>
+            </label>
+            <button class="primary-button align-end" type="submit">Load board</button>
+        </form>
+    </section>
+
+    <section class="panel" th:if="${scope == 'challenge'}">
+        <form class="form-grid" th:action="@{/leaderboard}" method="get">
+            <input type="hidden" name="scope" value="challenge">
+            <label>Challenge
+                <select name="challengeId">
+                    <option th:each="challenge : ${challenges}"
+                            th:value="${challenge.id}"
+                            th:selected="${selectedChallenge != null and selectedChallenge.id == challenge.id}"
+                            th:text="|${challenge.title} / ${challenge.arena.name}|">Challenge</option>
+                </select>
+            </label>
+            <button class="primary-button align-end" type="submit">Load board</button>
+        </form>
+    </section>
+
+    <section class="panel" th:if="${scope != 'ranks'}">
+        <p class="eyebrow" th:text="${boardTitle}">Ranking</p>
+        <ol class="leader-list large">
+            <li th:if="${#lists.isEmpty(leaders)}">
+                <span class="rank">-</span>
+                <span>No ranked players yet</span>
+                <strong class="score-pill">0 XP</strong>
+            </li>
+            <li th:each="leader, stat : ${leaders}">
+                <span class="rank" th:text="${stat.count}">1</span>
+                <span>
+                    <span class="profile-chip">
+                        <img th:src="${leader.user.avatarUrl}" alt="">
+                        <strong th:text="${leader.user.fullName}">Player</strong>
+                    </span>
+                    <small th:text="${leader.rank.label}">Rank</small>
+                </span>
+                <strong class="score-pill" th:text="|${leader.xp} XP|">0 XP</strong>
+            </li>
+        </ol>
+    </section>
+
+    <section class="rank-grid" th:if="${scope == 'ranks'}">
+        <article class="card rank-card" th:each="rank : ${rankLadder}">
+            <span class="score-pill" th:text="|${rank.minimumXp}+ XP|">0 XP</span>
+            <h2 th:text="${rank.label}">Rank</h2>
+            <p th:text="${rank.privilege}">Privilege</p>
+        </article>
+    </section>
+</main>
+</body>
+</html>

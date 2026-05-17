@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${challenge.title} + ' | MindArena'">Challenge</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<main class="page">
+    <p class="flash" th:if="${message}" th:text="${message}"></p>
+    <p class="flash error" th:if="${error}" th:text="${error}"></p>
+    <section class="challenge-layout">
+        <div>
+            <p class="tag" th:text="${challenge.arena.name}">Arena</p>
+            <h1 th:text="${challenge.title}">Challenge title</h1>
+            <p class="lead" th:text="${challenge.brief}">Brief</p>
+            <div class="action-row">
+                <p class="status-pill" th:text="${challenge.difficulty}">Intermediate</p>
+                <p class="status-pill" th:text="'Deadline ' + ${#temporals.format(challenge.deadline, 'dd MMM yyyy HH:mm')}">Deadline</p>
+            </div>
+
+            <form th:class="|panel template-form template-${selectedSubmissionTemplate.arenaClass} template-${#strings.toLowerCase(selectedSubmissionTemplate.type.name())} js-template-answer|"
+                  th:action="@{/challenges/{id}/submissions(id=${challenge.id})}" method="post">
+                <div class="template-form-heading">
+                    <span class="template-icon" th:text="${selectedSubmissionTemplate.icon}">code</span>
+                    <div>
+                        <p class="eyebrow">Submission template</p>
+                        <h2 th:text="${selectedSubmissionTemplate.name}">Submit your answer</h2>
+                        <p class="muted" th:text="${selectedSubmissionTemplate.description}">Template description</p>
+                    </div>
+                </div>
+                <input class="js-template-content" type="hidden" name="contentJson">
+
+                <div th:switch="${selectedSubmissionTemplate.type.name()}">
+                    <div th:case="'CODE_SOLUTION'" class="code-solution-shell">
+                        <div class="ide-bar"><span></span><span></span><span></span><strong>Code Solution</strong></div>
+                        <div class="template-grid two">
+                            <label class="field-card compact">Programming Language
+                                <select class="js-template-field" data-field="language" required>
+                                    <option value="">Choose language</option>
+                                    <option>Java</option><option>Python</option><option>JavaScript</option><option>C</option><option>C++</option><option>SQL</option><option>Other</option>
+                                </select>
+                            </label>
+                            <div class="template-badge">Blue terminal workspace</div>
+                        </div>
+                        <label class="field-card editor-card">Code Solution
+                            <textarea class="code-editor js-template-field js-code-editor" data-field="codeSolution" rows="14" maxlength="6000" required spellcheck="false" placeholder="Paste your code solution here..."></textarea>
+                        </label>
+                        <div class="template-grid two">
+                            <label class="field-card">Explanation of Approach
+                                <textarea class="js-template-field" data-field="explanation" rows="5" maxlength="1600" required placeholder="Explain the logic behind your solution..."></textarea>
+                                <small>Describe the algorithm, data flow, or SQL reasoning.</small>
+                            </label>
+                            <div class="template-grid two nested">
+                                <label class="field-card compact">Time Complexity
+                                    <input class="js-template-field" data-field="timeComplexity" maxlength="80" placeholder="Example: O(n log n)">
+                                </label>
+                                <label class="field-card compact">Space Complexity
+                                    <input class="js-template-field" data-field="spaceComplexity" maxlength="80" placeholder="Example: O(n)">
+                                </label>
+                                <label class="field-card span-2">Test Cases
+                                    <textarea class="js-template-field" data-field="testCases" rows="4" maxlength="1200" placeholder="Add sample input/output or test cases..."></textarea>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div th:case="'SYSTEM_DESIGN_FIX'" class="architecture-board">
+                        <label class="field-card block-diagnosis">Diagnosis
+                            <textarea class="js-template-field" data-field="problemDiagnosis" rows="4" required placeholder="Describe the technical problem, bottleneck, or limitation..."></textarea>
+                        </label>
+                        <label class="field-card block-architecture">Architecture
+                            <textarea class="js-template-field" data-field="proposedArchitecture" rows="5" required placeholder="Explain the improved architecture or system design..."></textarea>
+                        </label>
+                        <label class="field-card block-tech">Technologies
+                            <input class="js-template-field" data-field="technologiesUsed" required placeholder="Example: Spring Boot, MySQL, Redis, REST API...">
+                        </label>
+                        <label class="field-card block-database">Database
+                            <textarea class="js-template-field" data-field="databaseChanges" rows="4" placeholder="Describe tables, relationships, indexes, or schema changes..."></textarea>
+                        </label>
+                        <label class="field-card block-api">API
+                            <textarea class="mono-field js-template-field" data-field="apiEndpoints" rows="4" placeholder="Example: GET /api/leaderboard, POST /api/submissions..."></textarea>
+                        </label>
+                        <label class="field-card block-tradeoffs">Trade-offs
+                            <textarea class="js-template-field" data-field="tradeoffs" rows="4" required placeholder="Explain advantages, limitations, and technical decisions..."></textarea>
+                        </label>
+                    </div>
+
+                    <div th:case="'STARTUP_PITCH_CANVAS'" class="canvas-grid">
+                        <label class="field-card span-2 hero-field">Startup Name
+                            <input class="js-template-field" data-field="startupName" required placeholder="Example: CampusBoost">
+                        </label>
+                        <label class="field-card">Problem<textarea class="js-template-field" data-field="problem" rows="4" required placeholder="What problem are you solving?"></textarea></label>
+                        <label class="field-card">Target Customers<textarea class="js-template-field" data-field="targetCustomers" rows="4" required placeholder="Who are the users or customers?"></textarea></label>
+                        <label class="field-card">Proposed Solution<textarea class="js-template-field" data-field="proposedSolution" rows="4" required placeholder="Describe your solution clearly..."></textarea></label>
+                        <label class="field-card">Business Model<textarea class="js-template-field" data-field="businessModel" rows="4" required placeholder="How can this idea generate value or revenue?"></textarea></label>
+                        <label class="field-card">Competitors<textarea class="js-template-field" data-field="competitors" rows="3" placeholder="Mention existing alternatives or competitors..."></textarea></label>
+                        <label class="field-card uvp-card">Unique Value Proposition<textarea class="js-template-field" data-field="uniqueValueProposition" rows="3" required placeholder="Why is your idea different or better?"></textarea></label>
+                    </div>
+
+                    <div th:case="'GROWTH_STRATEGY_PLAN'" class="growth-dashboard">
+                        <label class="field-card hero-field">Product or Service<input class="js-template-field" data-field="productOrService" required placeholder="Name of the product/service..."></label>
+                        <div class="template-grid three">
+                            <label class="field-card">Target Market<textarea class="js-template-field" data-field="targetMarket" rows="5" required placeholder="Describe the market and customer segment..."></textarea></label>
+                            <div class="field-card checkbox-card">Marketing Channels
+                                <div class="check-grid">
+                                    <label><input class="js-template-field" type="checkbox" data-field="marketingChannels" value="Social Media"> Social Media</label>
+                                    <label><input class="js-template-field" type="checkbox" data-field="marketingChannels" value="Influencers"> Influencers</label>
+                                    <label><input class="js-template-field" type="checkbox" data-field="marketingChannels" value="Campus Ambassadors"> Campus Ambassadors</label>
+                                    <label><input class="js-template-field" type="checkbox" data-field="marketingChannels" value="Paid Ads"> Paid Ads</label>
+                                    <label><input class="js-template-field" type="checkbox" data-field="marketingChannels" value="SEO"> SEO</label>
+                                    <label><input class="js-template-field" type="checkbox" data-field="marketingChannels" value="Events"> Events</label>
+                                    <label><input class="js-template-field" type="checkbox" data-field="marketingChannels" value="Partnerships"> Partnerships</label>
+                                    <label><input class="js-template-field" type="checkbox" data-field="marketingChannels" value="Other"> Other</label>
+                                </div>
+                            </div>
+                            <label class="field-card">Pricing Strategy<textarea class="js-template-field" data-field="pricingStrategy" rows="5" placeholder="Explain pricing, freemium model, subscription, etc."></textarea></label>
+                        </div>
+                        <div class="template-grid three">
+                            <label class="field-card">Competitor Analysis<textarea class="js-template-field" data-field="competitorAnalysis" rows="4" required placeholder="Who are the competitors and how will you differentiate?"></textarea></label>
+                            <label class="field-card">Growth Plan<textarea class="js-template-field" data-field="growthPlan" rows="4" required placeholder="Explain the steps to grow users or customers..."></textarea></label>
+                            <label class="field-card">Key Success Metrics<textarea class="js-template-field" data-field="successMetrics" rows="4" required placeholder="Example: active users, conversion rate, retention..."></textarea></label>
+                        </div>
+                    </div>
+
+                    <div th:case="'CREATIVE_CONCEPT_BRIEF'" class="moodboard-grid">
+                        <label class="field-card hero-field">Concept Title<input class="js-template-field" data-field="conceptTitle" required placeholder="Give your creative concept a title..."></label>
+                        <label class="field-card hero-field alt">Slogan or Key Message<input class="js-template-field" data-field="slogan" placeholder="Example: Create. Connect. Inspire."></label>
+                        <label class="field-card">Main Idea<textarea class="js-template-field" data-field="mainIdea" rows="5" required placeholder="Describe the core idea..."></textarea></label>
+                        <label class="field-card">Target Audience<textarea class="js-template-field" data-field="targetAudience" rows="4" required placeholder="Who is this concept made for?"></textarea></label>
+                        <label class="field-card">Inspiration<textarea class="js-template-field" data-field="inspiration" rows="4" placeholder="What inspired this idea?"></textarea></label>
+                        <label class="field-card visual-direction">Visual Direction<textarea class="js-template-field" data-field="visualDirection" rows="7" required placeholder="Describe colors, mood, visual style, and atmosphere..."></textarea></label>
+                        <label class="field-card span-2">Image/File/Link<input class="js-template-field" data-field="assetLink" type="url" placeholder="Paste a link to an image, design, or file..."></label>
+                    </div>
+
+                    <div th:case="'VISUAL_STORYBOARD'" class="storyboard-shell">
+                        <label class="field-card hero-field">Story Title<input class="js-template-field" data-field="storyTitle" required placeholder="Title of the visual story..."></label>
+                        <div class="storyboard-panels">
+                            <label class="field-card scene-card"><span>Scene 1</span><textarea class="js-template-field" data-field="scene1" rows="7" required placeholder="Describe the first scene..."></textarea></label>
+                            <label class="field-card scene-card"><span>Scene 2</span><textarea class="js-template-field" data-field="scene2" rows="7" required placeholder="Describe the second scene..."></textarea></label>
+                            <label class="field-card scene-card"><span>Scene 3</span><textarea class="js-template-field" data-field="scene3" rows="7" required placeholder="Describe the third scene..."></textarea></label>
+                        </div>
+                        <div class="template-grid three">
+                            <label class="field-card">Mood / Style
+                                <select class="js-template-field" data-field="moodStyle" required>
+                                    <option value="">Choose mood</option>
+                                    <option>Funny</option><option>Emotional</option><option>Minimalist</option><option>Futuristic</option><option>Dramatic</option><option>Educational</option><option>Inspirational</option><option>Other</option>
+                                </select>
+                            </label>
+                            <label class="field-card">Tools Used<input class="js-template-field" data-field="toolsUsed" placeholder="Example: Canva, Figma, Photoshop, CapCut..."></label>
+                            <label class="field-card">Final Visual Link or File<input class="js-template-field" data-field="finalVisualLink" type="url" placeholder="Paste a link to your visual, mockup, or storyboard..."></label>
+                        </div>
+                    </div>
+
+                    <div th:case="'ARGUMENT_BATTLE'" class="argument-battle">
+                        <div class="field-card position-card">Position
+                            <div class="segmented-choice">
+                                <label><input class="js-template-field" type="radio" name="position" data-field="position" value="For" required><span>FOR</span></label>
+                                <label><input class="js-template-field" type="radio" name="position" data-field="position" value="Against" required><span>AGAINST</span></label>
+                            </div>
+                        </div>
+                        <label class="field-card claim-card">Main Claim<textarea class="js-template-field" data-field="mainClaim" rows="4" required placeholder="State your main opinion clearly..."></textarea></label>
+                        <div class="template-grid three">
+                            <label class="field-card argument-card">Argument 1<textarea class="js-template-field" data-field="argument1" rows="4" required placeholder="First strong argument..."></textarea></label>
+                            <label class="field-card argument-card">Argument 2<textarea class="js-template-field" data-field="argument2" rows="4" required placeholder="Second strong argument..."></textarea></label>
+                            <label class="field-card argument-card">Argument 3<textarea class="js-template-field" data-field="argument3" rows="4" placeholder="Optional third argument..."></textarea></label>
+                        </div>
+                        <label class="field-card counter-card">Counterargument<textarea class="js-template-field" data-field="counterargument" rows="4" required placeholder="Mention the opposite view and respond to it..."></textarea></label>
+                        <label class="field-card conclusion-card">Final Conclusion<textarea class="js-template-field" data-field="finalConclusion" rows="4" required placeholder="Conclude your position in a strong way..."></textarea></label>
+                    </div>
+
+                    <div th:case="'CRITICAL_ANALYSIS_CASE'" class="analysis-paper">
+                        <label class="field-card"><span>01</span> Topic Interpretation<textarea class="js-template-field" data-field="topicInterpretation" rows="4" required placeholder="Explain how you understand the topic..."></textarea></label>
+                        <label class="field-card"><span>02</span> Main Problem<textarea class="js-template-field" data-field="mainProblem" rows="4" required placeholder="What is the central problem or question?"></textarea></label>
+                        <label class="field-card"><span>03</span> Analysis<textarea class="js-template-field" data-field="analysis" rows="7" required placeholder="Develop your analysis logically..."></textarea></label>
+                        <label class="field-card"><span>04</span> Real-Life Example<textarea class="js-template-field" data-field="realLifeExample" rows="4" placeholder="Give a real example that supports your analysis..."></textarea></label>
+                        <label class="field-card"><span>05</span> Opposing View<textarea class="js-template-field" data-field="opposingView" rows="4" required placeholder="Present an opposite perspective..."></textarea></label>
+                        <label class="field-card"><span>06</span> Personal Position<textarea class="js-template-field" data-field="personalPosition" rows="4" required placeholder="Explain your own position..."></textarea></label>
+                        <label class="field-card"><span>07</span> Final Synthesis<textarea class="js-template-field" data-field="finalSynthesis" rows="4" required placeholder="Summarize your conclusion in a balanced way..."></textarea></label>
+                    </div>
+                </div>
+                <button th:class="|primary-button template-submit submit-${selectedSubmissionTemplate.arenaClass}|" type="submit">Submit answer</button>
+            </form>
+        </div>
+
+        <aside>
+            <div class="panel chat-cta">
+                <p class="eyebrow">Challenge room</p>
+                <h2>Live discussion</h2>
+                <p class="muted">Use the challenge chat for clarifications, hints, and post-match discussion.</p>
+                <a class="secondary-button" th:href="@{/chat(roomType='CHALLENGE', challengeId=${challenge.id})}">Open chat room</a>
+            </div>
+            <div class="panel chat-cta" th:if="${canManageChallenge}">
+                <div class="section-heading flush">
+                    <div>
+                        <p class="eyebrow">Creator tools</p>
+                        <h2>Manage challenge</h2>
+                    </div>
+                    <label class="switch-toggle">Show
+                        <input class="js-creator-tools-toggle" type="checkbox">
+                        <span></span>
+                    </label>
+                </div>
+                <div class="creator-tools-body js-creator-tools-body" hidden>
+                <form class="form-stack" th:action="@{/challenges/{id}/update(id=${challenge.id})}" method="post">
+                    <label>Title
+                        <input name="title" th:value="${challenge.title}" maxlength="120" required>
+                    </label>
+                    <label>Difficulty
+                        <select name="difficulty" required>
+                            <option th:selected="${challenge.difficulty == 'Beginner'}">Beginner</option>
+                            <option th:selected="${challenge.difficulty == 'Intermediate'}">Intermediate</option>
+                            <option th:selected="${challenge.difficulty == 'Advanced'}">Advanced</option>
+                            <option th:selected="${challenge.difficulty == 'Expert'}">Expert</option>
+                        </select>
+                    </label>
+                    <label>Answer template
+                        <select class="js-template-select" name="templateId" required>
+                            <option th:each="template : ${submissionTemplates}"
+                                    th:value="${template.id}"
+                                    th:attr="data-description=${template.description},data-body=${template.body},data-class=${template.arenaClass},data-icon=${template.icon}"
+                                    th:selected="${template.name == challenge.submissionTemplateName}"
+                                    th:text="|${template.name} - ${template.description}|">Template</option>
+                        </select>
+                    </label>
+                    <div class="template-preview-card js-template-preview"></div>
+                    <label>Brief
+                        <textarea name="brief" rows="5" maxlength="1200" required th:text="${challenge.brief}"></textarea>
+                    </label>
+                    <label>Deadline
+                        <input type="datetime-local" name="deadline" th:value="${#temporals.format(challenge.deadline, 'yyyy-MM-dd''T''HH:mm')}" required>
+                    </label>
+                    <button class="primary-button" type="submit">Save changes</button>
+                </form>
+                <div class="divider"></div>
+                <form class="form-stack" th:action="@{/challenges/{id}/judges(id=${challenge.id})}" method="post">
+                    <label>Allow Explorer+ to select best
+                        <select name="judgeId" required>
+                            <option th:each="judge : ${eligibleJudges}"
+                                    th:value="${judge.id}"
+                                    th:text="${judge.fullName} + ' / ' + ${judge.score} + ' XP'">Judge</option>
+                        </select>
+                    </label>
+                    <button class="secondary-button" type="submit">Add judge</button>
+                </form>
+                <div class="item-list compact-list" th:if="${!#lists.isEmpty(challengeJudges)}">
+                    <article class="mini-row" th:each="judgeLink : ${challengeJudges}">
+                        <span class="profile-chip">
+                            <img th:src="${judgeLink.judge.avatarUrl}" alt="">
+                            <strong th:text="${judgeLink.judge.fullName}">Judge</strong>
+                        </span>
+                        <form th:action="@{/challenges/{id}/judges/remove(id=${challenge.id})}" method="post">
+                            <input type="hidden" name="judgeId" th:value="${judgeLink.judge.id}">
+                            <button class="danger-button small-button" type="submit">Remove</button>
+                        </form>
+                    </article>
+                </div>
+                <div class="divider"></div>
+                <form th:action="@{/challenges/{id}/toggle-own(id=${challenge.id})}" method="post">
+                    <button class="danger-button" type="submit" th:text="${challenge.active} ? 'Archive challenge' : 'Unarchive challenge'">Archive challenge</button>
+                </form>
+                </div>
+            </div>
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Peer review</p>
+                    <h2>Submissions</h2>
+                </div>
+            </div>
+            <form class="filter-bar compact-filter" th:action="@{/challenges/{id}(id=${challenge.id})}" method="get">
+                <label>Order
+                    <select name="submissionSort">
+                        <option value="votes" th:selected="${submissionSort == 'votes'}">Most votes</option>
+                        <option value="newest" th:selected="${submissionSort == 'newest'}">Newest</option>
+                        <option value="oldest" th:selected="${submissionSort == 'oldest'}">Oldest</option>
+                        <option value="best" th:selected="${submissionSort == 'best'}">Best first</option>
+                    </select>
+                </label>
+                <label>Filter
+                    <select name="submissionFilter">
+                        <option value="All" th:selected="${submissionFilter == 'All'}">All</option>
+                        <option value="Best" th:selected="${submissionFilter == 'Best'}">Best answer</option>
+                    </select>
+                </label>
+                <button class="secondary-button align-end" type="submit">Apply</button>
+            </form>
+            <div class="item-list">
+                <p class="empty-state" th:if="${#lists.isEmpty(submissions)}">No submissions yet.</p>
+                <article class="submission-ticket" th:each="submission : ${submissions}">
+                    <div class="submission-meta">
+                        <span class="profile-chip">
+                            <img th:src="${submission.author.avatarUrl}" alt="">
+                            <strong th:text="${submission.author.fullName}">Author</strong>
+                        </span>
+                        <span class="score-pill" th:text="${submission.upvotes} + ' votes'">0 votes</span>
+                    </div>
+                    <div class="action-row">
+                        <p class="status-pill" th:if="${submission.bestAnswer}">Best answer</p>
+                        <small th:text="${#temporals.format(submission.createdAt, 'dd MMM HH:mm')}">Time</small>
+                    </div>
+                    <a class="secondary-button" th:href="@{/submissions/{id}(id=${submission.id})}">Open submission</a>
+                </article>
+            </div>
+        </aside>
+    </section>
+</main>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

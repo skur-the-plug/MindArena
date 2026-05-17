@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Register | MindArena</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="auth-page">
+<main class="auth-shell">
+    <section class="auth-panel wide">
+        <div>
+            <p class="eyebrow">Create your player profile</p>
+            <h1>Start competing</h1>
+            <p class="muted">Build a profile that helps others understand your strengths before they review your work.</p>
+        </div>
+
+        <form class="form-grid" th:action="@{/register}" th:object="${user}" method="post">
+            <label>Full name
+                <input th:field="*{fullName}" required>
+                <span class="field-error" th:errors="*{fullName}"></span>
+            </label>
+            <label>Email
+                <input type="email" th:field="*{email}" required>
+                <span class="field-error" th:errors="*{email}"></span>
+            </label>
+            <label>Password
+                <input type="password" th:field="*{password}" required minlength="6">
+                <span class="field-error" th:errors="*{password}"></span>
+            </label>
+            <label>Skills
+                <input th:field="*{skills}" placeholder="Java, design, debate">
+            </label>
+            <label class="span-2">Interests
+                <input th:field="*{interests}" placeholder="AI, startups, creativity">
+            </label>
+            <button class="primary-button span-2" type="submit">Create account</button>
+        </form>
+
+        <p class="muted">Already registered? <a th:href="@{/login}">Login</a></p>
+    </section>
+</main>
+</body>
+</html>

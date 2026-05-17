@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${arena.name} + ' | MindArena'">Arena</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<main class="page">
+    <p class="flash" th:if="${message}" th:text="${message}"></p>
+    <p class="flash error" th:if="${error}" th:text="${error}"></p>
+    <section class="hero-band compact">
+        <div>
+            <p class="eyebrow">Arena</p>
+            <h1 th:text="${arena.name}">Arena</h1>
+            <p class="muted" th:text="${arena.description}">Description</p>
+        </div>
+        <div class="hero-actions">
+            <a class="secondary-button" th:href="@{/chat(roomType='ARENA', arenaId=${arena.id})}">Arena chat</a>
+            <form th:action="@{/arenas/{id}/join(id=${arena.id})}" method="post">
+                <button class="primary-button" type="submit">Join arena</button>
+            </form>
+        </div>
+    </section>
+
+    <section class="panel" th:if="${canCreateChallenge}">
+        <p class="eyebrow">Challenger tools</p>
+        <h2>Create challenge</h2>
+        <form class="form-grid js-template-picker-form" th:action="@{/arenas/{id}/challenges(id=${arena.id})}" method="post">
+            <label>Title
+                <input name="title" required maxlength="120">
+            </label>
+            <label>Deadline
+                <input type="datetime-local" name="deadline" required>
+            </label>
+            <label>Difficulty
+                <select name="difficulty" required>
+                    <option>Beginner</option>
+                    <option selected>Intermediate</option>
+                    <option>Advanced</option>
+                    <option>Expert</option>
+                </select>
+            </label>
+            <label class="span-2">Answer template
+                <select class="js-template-select" name="templateId" required>
+                    <option th:each="template : ${submissionTemplates}"
+                            th:value="${template.id}"
+                            th:attr="data-description=${template.description},data-body=${template.body},data-class=${template.arenaClass},data-icon=${template.icon}"
+                            th:text="|${template.name} - ${template.description}|">Template</option>
+                </select>
+            </label>
+            <div class="span-2 template-preview-card js-template-preview"></div>
+            <label class="span-2">Brief
+                <textarea name="brief" rows="5" maxlength="1200" required></textarea>
+            </label>
+            <button class="primary-button" type="submit">Create challenge</button>
+        </form>
+    </section>
+
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">Challenge board</p>
+            <h2>Challenges</h2>
+        </div>
+    </div>
+    <form class="filter-bar" th:action="@{/arenas/{id}(id=${arena.id})}" method="get">
+        <label>Order
+            <select name="challengeSort">
+                <option value="deadline" th:selected="${challengeSort == 'deadline'}">Deadline</option>
+                <option value="newest" th:selected="${challengeSort == 'newest'}">Newest</option>
+                <option value="difficulty" th:selected="${challengeSort == 'difficulty'}">Hardest</option>
+                <option value="title" th:selected="${challengeSort == 'title'}">Title</option>
+            </select>
+        </label>
+        <label>Difficulty
+            <select name="difficulty">
+                <option value="All" th:selected="${difficulty == 'All'}">All</option>
+                <option th:selected="${difficulty == 'Beginner'}">Beginner</option>
+                <option th:selected="${difficulty == 'Intermediate'}">Intermediate</option>
+                <option th:selected="${difficulty == 'Advanced'}">Advanced</option>
+                <option th:selected="${difficulty == 'Expert'}">Expert</option>
+            </select>
+        </label>
+        <button class="secondary-button align-end" type="submit">Apply</button>
+    </form>
+    <section class="item-list">
+        <p class="empty-state" th:if="${#lists.isEmpty(challenges)}">No challenges are active in this arena.</p>
+        <article class="card challenge-card" th:each="challenge : ${challenges}">
+            <p class="tag">Open challenge</p>
+            <h3 th:text="${challenge.title}">Challenge</h3>
+            <p th:text="${challenge.brief}">Brief</p>
+            <div class="meta-row">
+                <span class="status-pill" th:text="${challenge.difficulty}">Intermediate</span>
+                <span class="profile-chip" th:if="${challenge.creator != null}">
+                    <img th:src="${challenge.creator.avatarUrl}" alt="">
+                    <strong th:text="${challenge.creator.fullName}">Owner</strong>
+                </span>
+            </div>
+            <div class="action-row">
+                <span class="status-pill" th:text="'Deadline ' + ${#temporals.format(challenge.deadline, 'dd MMM yyyy HH:mm')}">Deadline</span>
+                <a class="secondary-button" th:href="@{/challenges/{id}(id=${challenge.id})}">Open</a>
+            </div>
+        </article>
+    </section>
+</main>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

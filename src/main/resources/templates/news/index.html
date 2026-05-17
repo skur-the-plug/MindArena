@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>News | MindArena</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<main class="page">
+    <p class="flash" th:if="${message}" th:text="${message}"></p>
+    <section class="hero-band compact">
+        <div>
+            <p class="eyebrow">News / Notifications</p>
+            <h1>Activity center</h1>
+            <p class="muted" th:text="|${unreadCount} unread personal notifications|">0 unread personal notifications</p>
+        </div>
+    </section>
+
+    <section class="content-grid">
+        <div>
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Personal</p>
+                    <h2>Notifications</h2>
+                </div>
+                <form th:action="@{/news/notifications/clear}" method="post" th:if="${!#lists.isEmpty(notifications)}">
+                    <button class="secondary-button small-button" type="submit">Clear notifications</button>
+                </form>
+            </div>
+            <div class="item-list">
+                <p class="empty-state" th:if="${#lists.isEmpty(notifications)}">No personal notifications yet.</p>
+                <article class="card notification-card" th:each="item : ${notifications}" th:classappend="${!item.readFlag} ? ' unread' : ''">
+                    <form th:action="@{/notifications/{id}/open(id=${item.id})}" method="post">
+                        <button class="notification-button" type="submit">
+                            <span class="tag" th:text="${item.type}">XP</span>
+                            <strong th:if="${!item.readFlag}">New</strong>
+                            <span th:text="${item.message}">Notification</span>
+                            <small th:text="${#temporals.format(item.createdAt, 'dd MMM yyyy HH:mm')}">Date</small>
+                        </button>
+                    </form>
+                </article>
+            </div>
+        </div>
+
+        <aside>
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Platform</p>
+                    <h2>News</h2>
+                </div>
+                <form sec:authorize="hasRole('ADMIN')" th:action="@{/admin/news/clear}" method="post" th:if="${!#lists.isEmpty(platformNews)}">
+                    <button class="secondary-button small-button" type="submit">Clear news</button>
+                </form>
+            </div>
+            <div class="item-list">
+                <p class="empty-state" th:if="${#lists.isEmpty(platformNews)}">No platform news yet.</p>
+                <article class="card notification-card" th:each="item : ${platformNews}">
+                    <span class="tag" th:text="${item.category}">Announcement</span>
+                    <h3 th:text="${item.title}">Title</h3>
+                    <p th:text="${item.body}">Body</p>
+                    <small th:text="${#temporals.format(item.createdAt, 'dd MMM yyyy HH:mm')}">Date</small>
+                </article>
+            </div>
+        </aside>
+    </section>
+</main>
+</body>
+</html>

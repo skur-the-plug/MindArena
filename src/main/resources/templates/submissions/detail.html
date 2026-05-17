@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${challenge.title} + ' submission | MindArena'">Submission</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<main class="page">
+    <p class="flash" th:if="${message}" th:text="${message}"></p>
+    <p class="flash error" th:if="${error}" th:text="${error}"></p>
+
+    <section class="hero-band compact">
+        <div>
+            <p class="eyebrow" th:text="${challenge.arena.name}">Arena</p>
+            <h1 th:text="${challenge.title}">Challenge</h1>
+            <p class="muted">
+                <span th:text="|Submitted by ${submission.author.fullName}|">Submitted by player</span>
+                <span th:text="| / ${challenge.difficulty}|"> / Intermediate</span>
+            </p>
+        </div>
+        <div class="hero-actions">
+            <a class="secondary-button" th:href="@{/challenges/{id}(id=${challenge.id})}">Back to challenge</a>
+            <span class="score-pill" th:text="${submission.upvotes} + ' votes'">0 votes</span>
+        </div>
+    </section>
+
+    <section class="submission-detail-layout">
+        <article th:class="|panel template-form template-${selectedSubmissionTemplate.arenaClass} template-readonly|">
+            <div class="template-form-heading">
+                <span class="template-icon" th:text="${selectedSubmissionTemplate.icon}">code</span>
+                <div>
+                    <p class="eyebrow">Submission view</p>
+                    <h2 th:text="${selectedSubmissionTemplate.name}">Template</h2>
+                    <p class="muted" th:text="${selectedSubmissionTemplate.description}">Template description</p>
+                </div>
+            </div>
+
+            <div th:switch="${selectedSubmissionTemplate.type.name()}">
+                <div th:case="'CODE_SOLUTION'" class="code-solution-shell readonly-template">
+                    <div class="ide-bar"><span></span><span></span><span></span><strong th:text="${submissionContent['language']} ?: 'Code Solution'">Code Solution</strong></div>
+                    <section class="field-card editor-card">
+                        <strong>Code Solution</strong>
+                        <pre class="readonly-code" th:text="${submissionContent['codeSolution']}">Code</pre>
+                    </section>
+                    <div class="template-grid two">
+                        <section class="field-card"><strong>Explanation of Approach</strong><p th:text="${submissionContent['explanation']}">Explanation</p></section>
+                        <div class="template-grid two nested">
+                            <section class="field-card compact"><strong>Time Complexity</strong><p th:text="${submissionContent['timeComplexity']} ?: 'Not provided'">O(n)</p></section>
+                            <section class="field-card compact"><strong>Space Complexity</strong><p th:text="${submissionContent['spaceComplexity']} ?: 'Not provided'">O(n)</p></section>
+                            <section class="field-card span-2"><strong>Test Cases</strong><p class="pre-line" th:text="${submissionContent['testCases']} ?: 'Not provided'">Tests</p></section>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:case="'SYSTEM_DESIGN_FIX'" class="architecture-board readonly-template">
+                    <section class="field-card block-diagnosis"><strong>Diagnosis</strong><p th:text="${submissionContent['problemDiagnosis']}">Diagnosis</p></section>
+                    <section class="field-card block-architecture"><strong>Architecture</strong><p th:text="${submissionContent['proposedArchitecture']}">Architecture</p></section>
+                    <section class="field-card block-tech"><strong>Technologies</strong><p th:text="${submissionContent['technologiesUsed']}">Tech</p></section>
+                    <section class="field-card block-database"><strong>Database</strong><p th:text="${submissionContent['databaseChanges']} ?: 'Not provided'">Database</p></section>
+                    <section class="field-card block-api"><strong>API</strong><pre class="readonly-code light" th:text="${submissionContent['apiEndpoints']} ?: 'Not provided'">API</pre></section>
+                    <section class="field-card block-tradeoffs"><strong>Trade-offs</strong><p th:text="${submissionContent['tradeoffs']}">Trade-offs</p></section>
+                </div>
+
+                <div th:case="'STARTUP_PITCH_CANVAS'" class="canvas-grid readonly-template">
+                    <section class="field-card span-2 hero-field"><strong>Startup Name</strong><p th:text="${submissionContent['startupName']}">Startup</p></section>
+                    <section class="field-card"><strong>Problem</strong><p th:text="${submissionContent['problem']}">Problem</p></section>
+                    <section class="field-card"><strong>Target Customers</strong><p th:text="${submissionContent['targetCustomers']}">Customers</p></section>
+                    <section class="field-card"><strong>Proposed Solution</strong><p th:text="${submissionContent['proposedSolution']}">Solution</p></section>
+                    <section class="field-card"><strong>Business Model</strong><p th:text="${submissionContent['businessModel']}">Model</p></section>
+                    <section class="field-card"><strong>Competitors</strong><p th:text="${submissionContent['competitors']} ?: 'Not provided'">Competitors</p></section>
+                    <section class="field-card uvp-card"><strong>Unique Value Proposition</strong><p th:text="${submissionContent['uniqueValueProposition']}">UVP</p></section>
+                </div>
+
+                <div th:case="'GROWTH_STRATEGY_PLAN'" class="growth-dashboard readonly-template">
+                    <section class="field-card hero-field"><strong>Product or Service</strong><p th:text="${submissionContent['productOrService']}">Product</p></section>
+                    <div class="template-grid three">
+                        <section class="field-card"><strong>Target Market</strong><p th:text="${submissionContent['targetMarket']}">Market</p></section>
+                        <section class="field-card"><strong>Marketing Channels</strong><p th:text="${submissionContent['marketingChannels']}">Channels</p></section>
+                        <section class="field-card"><strong>Pricing Strategy</strong><p th:text="${submissionContent['pricingStrategy']} ?: 'Not provided'">Pricing</p></section>
+                    </div>
+                    <div class="template-grid three">
+                        <section class="field-card"><strong>Competitor Analysis</strong><p th:text="${submissionContent['competitorAnalysis']}">Competitors</p></section>
+                        <section class="field-card"><strong>Growth Plan</strong><p th:text="${submissionContent['growthPlan']}">Plan</p></section>
+                        <section class="field-card"><strong>Key Success Metrics</strong><p th:text="${submissionContent['successMetrics']}">Metrics</p></section>
+                    </div>
+                </div>
+
+                <div th:case="'CREATIVE_CONCEPT_BRIEF'" class="moodboard-grid readonly-template">
+                    <section class="field-card hero-field"><strong>Concept Title</strong><p th:text="${submissionContent['conceptTitle']}">Concept</p></section>
+                    <section class="field-card hero-field alt"><strong>Slogan or Key Message</strong><p th:text="${submissionContent['slogan']} ?: 'Not provided'">Slogan</p></section>
+                    <section class="field-card"><strong>Main Idea</strong><p th:text="${submissionContent['mainIdea']}">Idea</p></section>
+                    <section class="field-card"><strong>Target Audience</strong><p th:text="${submissionContent['targetAudience']}">Audience</p></section>
+                    <section class="field-card"><strong>Inspiration</strong><p th:text="${submissionContent['inspiration']} ?: 'Not provided'">Inspiration</p></section>
+                    <section class="field-card visual-direction"><strong>Visual Direction</strong><p th:text="${submissionContent['visualDirection']}">Visual</p></section>
+                    <section class="field-card span-2"><strong>Image/File/Link</strong><a th:if="${submissionContent['assetLink']}" th:href="${submissionContent['assetLink']}" th:text="${submissionContent['assetLink']}">Asset</a><p th:unless="${submissionContent['assetLink']}">Not provided</p></section>
+                </div>
+
+                <div th:case="'VISUAL_STORYBOARD'" class="storyboard-shell readonly-template">
+                    <section class="field-card hero-field"><strong>Story Title</strong><p th:text="${submissionContent['storyTitle']}">Story</p></section>
+                    <div class="storyboard-panels">
+                        <section class="field-card scene-card"><span>Scene 1</span><p th:text="${submissionContent['scene1']}">Scene</p></section>
+                        <section class="field-card scene-card"><span>Scene 2</span><p th:text="${submissionContent['scene2']}">Scene</p></section>
+                        <section class="field-card scene-card"><span>Scene 3</span><p th:text="${submissionContent['scene3']}">Scene</p></section>
+                    </div>
+                    <div class="template-grid three">
+                        <section class="field-card"><strong>Mood / Style</strong><p th:text="${submissionContent['moodStyle']}">Mood</p></section>
+                        <section class="field-card"><strong>Tools Used</strong><p th:text="${submissionContent['toolsUsed']} ?: 'Not provided'">Tools</p></section>
+                        <section class="field-card"><strong>Final Visual Link or File</strong><a th:if="${submissionContent['finalVisualLink']}" th:href="${submissionContent['finalVisualLink']}" th:text="${submissionContent['finalVisualLink']}">Final</a><p th:unless="${submissionContent['finalVisualLink']}">Not provided</p></section>
+                    </div>
+                </div>
+
+                <div th:case="'ARGUMENT_BATTLE'" class="argument-battle readonly-template">
+                    <section class="field-card position-card"><strong>Position</strong><p class="debate-position" th:text="${submissionContent['position']}">For</p></section>
+                    <section class="field-card claim-card"><strong>Main Claim</strong><p th:text="${submissionContent['mainClaim']}">Claim</p></section>
+                    <div class="template-grid three">
+                        <section class="field-card argument-card"><strong>Argument 1</strong><p th:text="${submissionContent['argument1']}">Argument</p></section>
+                        <section class="field-card argument-card"><strong>Argument 2</strong><p th:text="${submissionContent['argument2']}">Argument</p></section>
+                        <section class="field-card argument-card"><strong>Argument 3</strong><p th:text="${submissionContent['argument3']} ?: 'Not provided'">Argument</p></section>
+                    </div>
+                    <section class="field-card counter-card"><strong>Counterargument</strong><p th:text="${submissionContent['counterargument']}">Counter</p></section>
+                    <section class="field-card conclusion-card"><strong>Final Conclusion</strong><p th:text="${submissionContent['finalConclusion']}">Conclusion</p></section>
+                </div>
+
+                <div th:case="'CRITICAL_ANALYSIS_CASE'" class="analysis-paper readonly-template">
+                    <section class="field-card"><span>01</span><strong>Topic Interpretation</strong><p th:text="${submissionContent['topicInterpretation']}">Interpretation</p></section>
+                    <section class="field-card"><span>02</span><strong>Main Problem</strong><p th:text="${submissionContent['mainProblem']}">Problem</p></section>
+                    <section class="field-card"><span>03</span><strong>Analysis</strong><p th:text="${submissionContent['analysis']}">Analysis</p></section>
+                    <section class="field-card"><span>04</span><strong>Real-Life Example</strong><p th:text="${submissionContent['realLifeExample']} ?: 'Not provided'">Example</p></section>
+                    <section class="field-card"><span>05</span><strong>Opposing View</strong><p th:text="${submissionContent['opposingView']}">Opposing</p></section>
+                    <section class="field-card"><span>06</span><strong>Personal Position</strong><p th:text="${submissionContent['personalPosition']}">Position</p></section>
+                    <section class="field-card"><span>07</span><strong>Final Synthesis</strong><p th:text="${submissionContent['finalSynthesis']}">Synthesis</p></section>
+                </div>
+            </div>
+        </article>
+
+        <aside class="submission-side">
+            <section class="panel">
+                <p class="eyebrow">Review</p>
+                <h2>Actions</h2>
+                <p class="muted" th:text="|Upvote: +${upvoteXp} XP / Best answer: +${bestAnswerXp} XP|">XP</p>
+                <form th:if="${canVote}" th:action="@{/submissions/{id}/upvote(id=${submission.id})}" method="post">
+                    <input type="hidden" name="challengeId" th:value="${challenge.id}">
+                    <input type="hidden" name="returnToSubmission" value="true">
+                    <button class="secondary-button" type="submit">Upvote</button>
+                </form>
+                <form th:if="${canSelectBestAnswer}" th:action="@{/submissions/{id}/best(id=${submission.id})}" method="post">
+                    <input type="hidden" name="challengeId" th:value="${challenge.id}">
+                    <input type="hidden" name="returnToSubmission" value="true">
+                    <button class="primary-button" type="submit">Select best</button>
+                </form>
+                <p class="status-pill" th:if="${submission.bestAnswer}">Best answer</p>
+            </section>
+
+            <section class="panel">
+                <p class="eyebrow">Discussion</p>
+                <h2>Comments</h2>
+                <form class="form-stack" th:action="@{/submissions/{id}/comments(id=${submission.id})}" method="post">
+                    <label>Comment
+                        <textarea name="content" rows="4" maxlength="1000" required placeholder="Add feedback, a question, or a judging note..."></textarea>
+                    </label>
+                    <button class="primary-button" type="submit">Post comment</button>
+                </form>
+                <div class="item-list comment-list">
+                    <p class="empty-state" th:if="${#lists.isEmpty(comments)}">No comments yet.</p>
+                    <article class="comment-card" th:each="comment : ${comments}">
+                        <div class="submission-meta">
+                            <span class="profile-chip">
+                                <img th:src="${comment.author.avatarUrl}" alt="">
+                                <strong th:text="${comment.author.fullName}">Author</strong>
+                            </span>
+                            <small th:text="${#temporals.format(comment.createdAt, 'dd MMM HH:mm')}">Time</small>
+                        </div>
+                        <p th:text="${comment.content}">Comment</p>
+                    </article>
+                </div>
+            </section>
+        </aside>
+    </section>
+</main>
+</body>
+</html>

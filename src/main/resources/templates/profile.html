@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Profile | MindArena</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<main class="page narrow">
+    <p class="flash" th:if="${message}" th:text="${message}"></p>
+    <p class="flash error" th:if="${error}" th:text="${error}"></p>
+    <section class="hero-band compact">
+        <div>
+            <p class="eyebrow">Profile</p>
+            <h1>Player identity</h1>
+            <p class="muted">Keep your skills and interests current for better arena context.</p>
+        </div>
+    </section>
+
+    <section class="panel profile-media-panel">
+        <img class="profile-avatar-large" th:src="${user.avatarUrl}" alt="">
+        <form class="form-stack" th:action="@{/profile/avatar}" method="post" enctype="multipart/form-data">
+            <label>Profile image
+                <input type="file" name="avatar" accept="image/png,image/jpeg,image/gif,image/webp" required>
+            </label>
+            <button class="secondary-button" type="submit">Change image</button>
+        </form>
+    </section>
+
+    <section class="panel">
+        <form class="form-stack" th:action="@{/profile}" th:object="${user}" method="post">
+            <label>Full name
+                <input th:field="*{fullName}" required>
+            </label>
+            <label>Email
+                <input th:value="${user.email}" disabled>
+            </label>
+            <label>Skills
+                <input th:field="*{skills}">
+            </label>
+            <label>Interests
+                <input th:field="*{interests}">
+            </label>
+            <button class="primary-button" type="submit">Save profile</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

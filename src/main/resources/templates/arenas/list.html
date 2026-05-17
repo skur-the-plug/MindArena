@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Arenas | MindArena</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<main class="page">
+    <p class="flash" th:if="${message}" th:text="${message}"></p>
+    <section class="hero-band compact">
+        <div>
+            <p class="eyebrow">Choose your domain</p>
+            <h1>Arenas</h1>
+            <p class="muted">Join focused spaces for coding, business, creativity, and debate challenges.</p>
+        </div>
+    </section>
+    <section class="card-grid">
+        <article class="card arena-card" th:each="arena : ${arenas}" th:classappend="${arena.color}">
+            <div>
+                <p class="tag" th:text="${arena.color}">Domain</p>
+                <h2 th:text="${arena.name}">Arena</h2>
+                <p th:text="${arena.description}">Description</p>
+            </div>
+            <div class="action-row">
+                <a class="secondary-button" th:href="@{/arenas/{id}(id=${arena.id})}">View</a>
+                <form th:action="@{/arenas/{id}/join(id=${arena.id})}" method="post">
+                    <button class="primary-button" type="submit">Join</button>
+                </form>
+            </div>
+        </article>
+    </section>
+</main>
+</body>
+</html>

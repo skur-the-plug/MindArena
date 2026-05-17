@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard | MindArena</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<main class="page">
+    <p class="flash" th:if="${message}" th:text="${message}"></p>
+
+    <section class="hero-band">
+        <div>
+            <p class="eyebrow">Player dashboard</p>
+            <h1 th:text="'Welcome, ' + ${user.fullName}">Welcome</h1>
+            <p class="lead">Compete across arenas, publish sharp answers, and build a public score from peer votes.</p>
+        </div>
+        <div class="hero-actions">
+            <a class="secondary-button" th:href="@{/leaderboard}">View ranking</a>
+            <a class="primary-button" th:href="@{/arenas}">Browse arenas</a>
+        </div>
+    </section>
+
+    <section class="metric-grid">
+        <div class="metric">
+            <span>Current score</span>
+            <strong th:text="${user.score} + ' XP'">0 XP</strong>
+        </div>
+        <div class="metric">
+            <span>Rank</span>
+            <strong th:text="${rank.label}">Syntax Initiate</strong>
+        </div>
+        <div class="metric">
+            <span>Joined arenas</span>
+            <strong th:text="${#lists.size(memberships)}">0</strong>
+        </div>
+    </section>
+    <p class="rank-note" th:text="${rank.privilege}">Rank privilege</p>
+
+    <section class="content-grid">
+        <div>
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Available now</p>
+                    <h2>Active challenges</h2>
+                </div>
+                <a th:href="@{/arenas}">View arenas</a>
+            </div>
+            <form class="filter-bar" th:action="@{/dashboard}" method="get">
+                <label>Order
+                    <select name="challengeSort">
+                        <option value="deadline" th:selected="${challengeSort == 'deadline'}">Deadline</option>
+                        <option value="newest" th:selected="${challengeSort == 'newest'}">Newest</option>
+                        <option value="difficulty" th:selected="${challengeSort == 'difficulty'}">Hardest</option>
+                        <option value="title" th:selected="${challengeSort == 'title'}">Title</option>
+                    </select>
+                </label>
+                <label>Difficulty
+                    <select name="difficulty">
+                        <option value="All" th:selected="${difficulty == 'All'}">All</option>
+                        <option th:selected="${difficulty == 'Beginner'}">Beginner</option>
+                        <option th:selected="${difficulty == 'Intermediate'}">Intermediate</option>
+                        <option th:selected="${difficulty == 'Advanced'}">Advanced</option>
+                        <option th:selected="${difficulty == 'Expert'}">Expert</option>
+                    </select>
+                </label>
+                <button class="secondary-button align-end" type="submit">Apply</button>
+            </form>
+            <div class="item-list">
+                <p class="empty-state" th:if="${#lists.isEmpty(challenges)}">No active challenges yet.</p>
+                <article class="card challenge-card" th:each="challenge : ${challenges}">
+                    <p class="tag" th:text="${challenge.arena.name}">Arena</p>
+                    <h3 th:text="${challenge.title}">Challenge title</h3>
+                    <p th:text="${challenge.brief}">Brief</p>
+                    <div class="meta-row">
+                        <span class="status-pill" th:text="${challenge.difficulty}">Intermediate</span>
+                        <span class="profile-chip" th:if="${challenge.creator != null}">
+                            <img th:src="${challenge.creator.avatarUrl}" alt="">
+                            <strong th:text="${challenge.creator.fullName}">Owner</strong>
+                        </span>
+                    </div>
+                    <div class="action-row">
+                        <span class="status-pill" th:text="${#temporals.format(challenge.deadline, 'dd MMM HH:mm')}">Deadline</span>
+                        <a class="secondary-button" th:href="@{/challenges/{id}(id=${challenge.id})}">Open</a>
+                    </div>
+                </article>
+            </div>
+        </div>
+
+        <aside>
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Top players</p>
+                    <h2>Leaderboard</h2>
+                </div>
+                <a th:href="@{/leaderboard}">Full list</a>
+            </div>
+            <ol class="leader-list">
+                <li th:if="${#lists.isEmpty(leaders)}">
+                    <span class="rank">-</span>
+                    <span>No ranked players yet</span>
+                    <strong class="score-pill">0 XP</strong>
+                </li>
+                <li th:each="leader, leaderStat : ${leaders}">
+                    <span class="rank" th:text="${leaderStat.count}">1</span>
+                    <span th:text="${leader.fullName}">Name</span>
+                    <strong class="score-pill" th:text="${leader.score} + ' XP'">0 XP</strong>
+                </li>
+            </ol>
+        </aside>
+    </section>
+</main>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

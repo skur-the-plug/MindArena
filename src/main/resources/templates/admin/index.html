@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin | MindArena</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<main class="page">
+    <p class="flash" th:if="${message}" th:text="${message}"></p>
+    <section class="hero-band compact">
+        <div>
+            <p class="eyebrow">Admin console</p>
+            <h1>Challenge operations</h1>
+            <p class="muted">Create, monitor, and archive arena challenges from one workspace.</p>
+        </div>
+    </section>
+
+    <section class="table-section">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Platform news</p>
+                <h2>Publish announcement</h2>
+            </div>
+        </div>
+        <form class="form-grid" th:action="@{/admin/news}" method="post">
+            <label>Title
+                <input name="title" maxlength="120" required>
+            </label>
+            <label>Category
+                <input name="category" maxlength="40" value="Announcement" required>
+            </label>
+            <label class="span-2">Body
+                <textarea name="body" rows="4" maxlength="1000" required></textarea>
+            </label>
+            <button class="primary-button" type="submit">Publish news</button>
+        </form>
+    </section>
+
+    <section class="admin-grid">
+        <div class="panel">
+            <p class="eyebrow">New challenge</p>
+            <h2>Create challenge</h2>
+            <form class="form-stack" th:action="@{/admin/challenges}" th:object="${challenge}" method="post">
+                <label>Title
+                    <input name="title" required maxlength="120">
+                </label>
+                <label>Arena
+                    <select class="js-admin-arena-select" name="arenaId" required>
+                        <option th:each="arena : ${arenas}" th:value="${arena.id}" th:text="${arena.name}">Arena</option>
+                    </select>
+                </label>
+                <label>Difficulty
+                    <select name="difficulty" required>
+                        <option>Beginner</option>
+                        <option selected>Intermediate</option>
+                        <option>Advanced</option>
+                        <option>Expert</option>
+                    </select>
+                </label>
+                <label>Answer template
+                    <select class="js-admin-template-select" name="templateId" required>
+                        <th:block th:each="arena : ${arenas}">
+                            <option th:each="template : ${templateOptionsByArena[arena.id]}"
+                                    th:attr="data-arena-id=${arena.id},data-template-body=${template.body},data-description=${template.description},data-class=${template.arenaClass},data-icon=${template.icon}"
+                                    th:value="${template.id}"
+                                    th:text="|${template.name} - ${template.description}|">Template</option>
+                        </th:block>
+                    </select>
+                </label>
+                <div class="template-preview">
+                    <p class="eyebrow">Selected layout</p>
+                    <pre class="template-preview-body js-admin-template-preview"></pre>
+                </div>
+                <label>Brief
+                    <textarea name="brief" rows="6" required maxlength="1200"></textarea>
+                </label>
+                <label>Deadline
+                    <input type="datetime-local" name="deadline" required>
+                </label>
+                <button class="primary-button" type="submit">Create challenge</button>
+            </form>
+        </div>
+
+        <aside>
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Live board</p>
+                    <h2>Active challenges</h2>
+                </div>
+            </div>
+            <div class="item-list">
+                <p class="empty-state" th:if="${#lists.isEmpty(activeChallenges)}">No active challenges.</p>
+                <article class="card" th:each="item : ${activeChallenges}">
+                    <p class="tag" th:text="${item.arena.name}">Arena</p>
+                    <h3 th:text="${item.title}">Title</h3>
+                    <form th:action="@{/admin/challenges/{id}/toggle(id=${item.id})}" method="post">
+                        <button class="danger-button" type="submit">Archive</button>
+                    </form>
+                </article>
+            </div>
+        </aside>
+    </section>
+
+    <section class="table-section">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Archive</p>
+                <h2>Archived challenges</h2>
+            </div>
+        </div>
+        <div class="item-list">
+            <p class="empty-state" th:if="${#lists.isEmpty(archivedChallenges)}">No archived challenges.</p>
+            <article class="card challenge-card" th:each="item : ${archivedChallenges}">
+                <p class="tag" th:text="${item.arena.name}">Arena</p>
+                <h3 th:text="${item.title}">Title</h3>
+                <p th:text="${item.brief}">Brief</p>
+                <form th:action="@{/admin/challenges/{id}/toggle(id=${item.id})}" method="post">
+                    <button class="primary-button" type="submit">Unarchive</button>
+                </form>
+            </article>
+        </div>
+    </section>
+
+    <section class="table-section">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Accounts</p>
+                <h2>Users</h2>
+            </div>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Score</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${users}">
+                    <td>
+                        <span class="profile-chip">
+                            <img th:src="${user.avatarUrl}" alt="">
+                            <span th:text="${user.fullName}">Name</span>
+                        </span>
+                    </td>
+                    <td th:text="${user.email}">Email</td>
+                    <td th:text="${user.role}">Role</td>
+                    <td th:text="${user.score}">0</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
