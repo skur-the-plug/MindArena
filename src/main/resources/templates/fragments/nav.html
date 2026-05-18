@@ -1,7 +1,8 @@
 <div th:fragment="nav" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <aside class="side-rail">
         <a class="operator-card" th:href="@{/profile}">
-            <span class="operator-avatar">OP</span>
+            <img class="operator-avatar" th:if="${currentUser != null}" th:src="${currentUser.avatarUrl}" alt="">
+            <span class="operator-avatar" th:unless="${currentUser != null}">OP</span>
             <span>
                 <strong>Operator</strong>
                 <small>Neural link active</small>
@@ -22,7 +23,7 @@
     <nav class="topbar">
         <div class="nav-side nav-left">
             <a class="brand" th:href="@{/dashboard}">
-                <span class="brand-mark">M</span>
+                <img class="brand-logo" th:src="@{/images/logo.png}" alt="">
                 <span>MindArena</span>
             </a>
         </div>

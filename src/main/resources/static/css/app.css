@@ -156,6 +156,13 @@ th {
     box-shadow: 0 10px 18px rgba(36, 87, 214, 0.22);
 }
 
+.brand-logo {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    flex: 0 0 auto;
+}
+
 .nav-side, .nav-center {
     flex-wrap: wrap;
 }
@@ -363,6 +370,22 @@ th {
 
 .auth-panel {
     box-shadow: var(--shadow);
+}
+
+.auth-logo-shell {
+    display: grid;
+    width: 136px;
+    height: 116px;
+    place-items: center;
+    margin: 0 auto 1.35rem;
+    background: #050608;
+    border-radius: 38% 62% 45% 55% / 48% 42% 58% 52%;
+}
+
+.auth-logo-shell img {
+    width: 82px;
+    height: 82px;
+    object-fit: contain;
 }
 
 .auth-panel.wide {
@@ -1610,6 +1633,13 @@ label {
     background: linear-gradient(135deg, var(--primary), var(--primary-dark));
     box-shadow: var(--cyan-glow);
     font-weight: 900;
+}
+
+img.operator-avatar {
+    display: block;
+    object-fit: cover;
+    border: 1px solid rgba(0, 242, 255, 0.38);
+    background: var(--surface-high);
 }
 
 .operator-card strong,
