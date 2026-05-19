@@ -1,14 +1,14 @@
 package com.mindarena.config;
 
-import com.mindarena.model.Arena;
-import com.mindarena.model.Challenge;
-import com.mindarena.model.Role;
-import com.mindarena.model.TemplateType;
-import com.mindarena.model.User;
-import com.mindarena.repository.ArenaRepository;
-import com.mindarena.repository.ChallengeRepository;
-import com.mindarena.repository.PlatformNewsRepository;
-import com.mindarena.repository.UserRepository;
+import com.mindarena.domain.challenges.model.Arena;
+import com.mindarena.domain.challenges.model.Challenge;
+import com.mindarena.domain.identity.model.Role;
+import com.mindarena.domain.challenges.model.TemplateType;
+import com.mindarena.domain.identity.model.User;
+import com.mindarena.domain.challenges.repository.ArenaRepository;
+import com.mindarena.domain.challenges.repository.ChallengeRepository;
+import com.mindarena.domain.challenges.repository.PlatformNewsRepository;
+import com.mindarena.domain.identity.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.boot.CommandLineRunner;
@@ -151,7 +151,7 @@ public class DataInitializer implements CommandLineRunner {
             return;
         }
         User admin = userRepository.findByEmail("admin@mindarena.local").orElse(null);
-        com.mindarena.model.PlatformNews news = new com.mindarena.model.PlatformNews();
+        com.mindarena.domain.challenges.model.PlatformNews news = new com.mindarena.domain.challenges.model.PlatformNews();
         news.setAuthor(admin);
         news.setCategory("Weekly Challenge");
         news.setTitle("Weekly Challenge: Create a startup idea for students");

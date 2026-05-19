@@ -37,6 +37,12 @@ docker compose up --build
 
 Open `http://localhost:8081`.
 
+The Spring Cloud runtime also exposes:
+
+- Gateway: `http://localhost:8082`
+- Eureka dashboard: `http://localhost:8761`
+- RabbitMQ management: `http://localhost:15672`
+
 To run against a manually managed database, create a MariaDB database:
 
 ```sql

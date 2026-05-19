@@ -20,7 +20,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 @Configuration
-@EnableAsync
+@EnableAsync(proxyTargetClass = true)
 @EnableCaching
 public class PlatformConfig {
 

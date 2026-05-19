@@ -1,9 +1,9 @@
 package com.mindarena.broker;
 
 import com.mindarena.config.PlatformConfig;
-import com.mindarena.event.LeaderboardChangedEvent;
-import com.mindarena.event.NotificationCreatedEvent;
-import com.mindarena.event.XpAwardedEvent;
+import com.mindarena.domain.rankings.event.LeaderboardChangedEvent;
+import com.mindarena.domain.notifications.event.NotificationCreatedEvent;
+import com.mindarena.domain.notifications.event.XpAwardedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpException;

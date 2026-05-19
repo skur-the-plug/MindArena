@@ -1,0 +1,12 @@
+package com.mindarena.domain.challenges.model;
+
+public enum TemplateType {
+    CODE_SOLUTION,
+    SYSTEM_DESIGN_FIX,
+    STARTUP_PITCH_CANVAS,
+    GROWTH_STRATEGY_PLAN,
+    CREATIVE_CONCEPT_BRIEF,
+    VISUAL_STORYBOARD,
+    ARGUMENT_BATTLE,
+    CRITICAL_ANALYSIS_CASE
+}

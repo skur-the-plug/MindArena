@@ -40,9 +40,27 @@ services:
       timeout: 5s
       retries: 10
 
+  discovery:
+    build: ./services/discovery-server
+    ports:
+      - "8761:8761"
+
+  gateway:
+    build: ./services/api-gateway
+    environment:
+      EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka/
+    ports:
+      - "8082:8080"
+    depends_on:
+      discovery:
+        condition: service_started
+
   app:
     build: .
     environment:
+      SERVICE_NAME: mindarena-app
+      EUREKA_ENABLED: true
+      EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka/
       DB_URL: jdbc:mariadb://db:3306/mindarena
       DB_USERNAME: mindarena
       DB_PASSWORD: mindarena123
@@ -63,6 +81,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      discovery:
+        condition: service_started
 
 volumes:
   mindarena-db:
