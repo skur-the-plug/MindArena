@@ -180,9 +180,89 @@ document.querySelectorAll(".js-chat-popover-toggle").forEach((button) => {
 
 document.querySelectorAll(".js-chat-stream[data-chat-auto-refresh='true']").forEach((stream) => {
   stream.scrollTop = stream.scrollHeight;
+  const composer = document.querySelector(".chat-composer");
+  const textarea = composer?.querySelector("textarea");
+  const roomParams = new URLSearchParams();
+  const roomType = stream.dataset.roomType;
+  const arenaId = stream.dataset.arenaId;
+  const challengeId = stream.dataset.challengeId;
+  if (roomType) {
+    roomParams.set("roomType", roomType);
+  }
+  if (arenaId) {
+    roomParams.set("arenaId", arenaId);
+  }
+  if (challengeId) {
+    roomParams.set("challengeId", challengeId);
+  }
+
+  const appendMessage = (message) => {
+    stream.querySelector(".empty-state")?.remove();
+
+    const article = document.createElement("article");
+    article.className = "chat-message";
+
+    const header = document.createElement("div");
+    const chip = document.createElement("span");
+    chip.className = "profile-chip";
+    const avatar = document.createElement("img");
+    avatar.src = message.authorAvatarUrl;
+    avatar.alt = "";
+    const author = document.createElement("strong");
+    author.textContent = message.authorName;
+    const time = document.createElement("span");
+    time.textContent = message.displayTime;
+
+    chip.append(avatar, author);
+    header.append(chip, time);
+
+    const content = document.createElement("p");
+    content.textContent = message.content;
+    article.append(header, content);
+    stream.append(article);
+    stream.scrollTop = stream.scrollHeight;
+  };
+
+  const connectChatSocket = () => {
+    if (!window.WebSocket || !roomType) {
+      return null;
+    }
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const socket = new WebSocket(`${protocol}//${window.location.host}/ws/chat?${roomParams.toString()}`);
+
+    socket.addEventListener("message", (event) => {
+      const payload = JSON.parse(event.data);
+      if (payload.type === "message") {
+        appendMessage(payload.message);
+      }
+    });
+
+    socket.addEventListener("close", () => {
+      stream.dataset.chatSocketOpen = "false";
+    });
+    socket.addEventListener("open", () => {
+      stream.dataset.chatSocketOpen = "true";
+    });
+    return socket;
+  };
+
+  const socket = connectChatSocket();
+
+  composer?.addEventListener("submit", (event) => {
+    if (!socket || socket.readyState !== WebSocket.OPEN || !textarea?.value.trim()) {
+      return;
+    }
+    event.preventDefault();
+    socket.send(JSON.stringify({ content: textarea.value.trim() }));
+    textarea.value = "";
+    textarea.focus();
+  });
+
   const refresh = async () => {
-    const composer = document.querySelector(".chat-composer textarea");
-    if (document.activeElement === composer && composer.value.trim()) {
+    if (stream.dataset.chatSocketOpen === "true") {
+      return;
+    }
+    if (document.activeElement === textarea && textarea.value.trim()) {
       return;
     }
     try {
@@ -199,6 +279,78 @@ document.querySelectorAll(".js-chat-stream[data-chat-auto-refresh='true']").forE
     }
   };
   window.setInterval(refresh, 5000);
+});
+
+document.querySelectorAll(".js-leaderboard-list").forEach((list) => {
+  const panel = list.closest("[data-leaderboard-scope]");
+  const scope = panel?.dataset.leaderboardScope;
+  if (!panel || !scope) {
+    return;
+  }
+
+  const params = new URLSearchParams({ scope });
+  if (panel.dataset.leaderboardArenaId) {
+    params.set("arenaId", panel.dataset.leaderboardArenaId);
+  }
+  if (panel.dataset.leaderboardChallengeId) {
+    params.set("challengeId", panel.dataset.leaderboardChallengeId);
+  }
+
+  const render = (leaders) => {
+    list.innerHTML = "";
+    if (!leaders.length) {
+      const empty = document.createElement("li");
+      empty.innerHTML = `
+        <span class="rank">-</span>
+        <span>No ranked players yet</span>
+        <strong class="score-pill">0 XP</strong>
+      `;
+      list.append(empty);
+      return;
+    }
+    leaders.forEach((leader, index) => {
+      const item = document.createElement("li");
+      const rank = document.createElement("span");
+      rank.className = "rank";
+      rank.textContent = String(index + 1);
+
+      const identity = document.createElement("span");
+      const chip = document.createElement("span");
+      chip.className = "profile-chip";
+      const avatar = document.createElement("img");
+      avatar.src = leader.avatarUrl;
+      avatar.alt = "";
+      const name = document.createElement("strong");
+      name.textContent = leader.name;
+      const rankLabel = document.createElement("small");
+      rankLabel.textContent = leader.rank;
+      chip.append(avatar, name);
+      identity.append(chip, rankLabel);
+
+      const score = document.createElement("strong");
+      score.className = "score-pill";
+      score.textContent = `${leader.xp} XP`;
+
+      item.append(rank, identity, score);
+      list.append(item);
+    });
+  };
+
+  const refreshLeaderboard = async () => {
+    try {
+      const response = await fetch(`/api/leaderboards?${params.toString()}`, {
+        headers: { Accept: "application/json" }
+      });
+      if (response.ok) {
+        render(await response.json());
+      }
+    } catch (error) {
+      // Server-rendered standings remain visible if the API refresh fails.
+    }
+  };
+
+  refreshLeaderboard();
+  window.setInterval(refreshLeaderboard, 10000);
 });
 
 document.querySelectorAll(".chat-composer textarea").forEach((textarea) => {

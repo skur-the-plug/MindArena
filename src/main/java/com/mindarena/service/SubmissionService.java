@@ -1,5 +1,6 @@
 package com.mindarena.service;
 
+import com.mindarena.event.LeaderboardChangedEvent;
 import com.mindarena.model.Challenge;
 import com.mindarena.model.NotificationType;
 import com.mindarena.model.Submission;
@@ -11,6 +12,7 @@ import com.mindarena.repository.SubmissionRepository;
 import com.mindarena.repository.VoteRepository;
 import java.util.List;
 import java.util.Comparator;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,17 +26,20 @@ public class SubmissionService {
     private final SubmissionCommentRepository commentRepository;
     private final VoteRepository voteRepository;
     private final NotificationService notificationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public SubmissionService(
             SubmissionRepository submissionRepository,
             SubmissionCommentRepository commentRepository,
             VoteRepository voteRepository,
-            NotificationService notificationService
+            NotificationService notificationService,
+            ApplicationEventPublisher eventPublisher
     ) {
         this.submissionRepository = submissionRepository;
         this.commentRepository = commentRepository;
         this.voteRepository = voteRepository;
         this.notificationService = notificationService;
+        this.eventPublisher = eventPublisher;
     }
 
     public List<Submission> forChallenge(Challenge challenge) {
@@ -79,6 +84,7 @@ public class SubmissionService {
         if (creator != null && !creator.getId().equals(author.getId())) {
             notificationService.awardXp(creator, OWNER_RECEIVED_SUBMISSION_POINTS, author.getFullName() + " submitted an answer to your challenge: " + challenge.getTitle() + ".", "/submissions/" + saved.getId());
         }
+        publishLeaderboardChanged(challenge);
         return saved;
     }
 
@@ -115,6 +121,7 @@ public class SubmissionService {
         submissionRepository.save(submission);
         int points = upvotePoints(submission.getChallenge());
         notificationService.awardXp(submission.getAuthor(), points, "Your " + submission.getChallenge().getDifficulty() + " submission in " + submission.getChallenge().getArena().getName() + " received an upvote.", "/submissions/" + submission.getId());
+        publishLeaderboardChanged(submission.getChallenge());
         return true;
     }
 
@@ -139,7 +146,9 @@ public class SubmissionService {
             notificationService.awardXp(selected.getAuthor(), points, "Your " + selected.getChallenge().getDifficulty() + " submission for " + selected.getChallenge().getTitle() + " was selected as the best answer.", "/submissions/" + selected.getId());
         }
 
-        return submissionRepository.save(selected);
+        Submission saved = submissionRepository.save(selected);
+        publishLeaderboardChanged(saved.getChallenge());
+        return saved;
     }
 
     public int upvotePoints(Challenge challenge) {
@@ -165,5 +174,12 @@ public class SubmissionService {
             return "Intermediate";
         }
         return challenge.getDifficulty();
+    }
+
+    private void publishLeaderboardChanged(Challenge challenge) {
+        eventPublisher.publishEvent(new LeaderboardChangedEvent(
+                challenge.getArena().getId(),
+                challenge.getId()
+        ));
     }
 }

@@ -58,7 +58,11 @@
                 </div>
             </div>
 
-            <div class="chat-stream js-chat-stream" data-chat-auto-refresh="true">
+            <div class="chat-stream js-chat-stream"
+                 data-chat-auto-refresh="true"
+                 th:attr="data-room-type=${roomType.name()},
+                          data-arena-id=${selectedArena != null ? selectedArena.id : ''},
+                          data-challenge-id=${selectedChallenge != null ? selectedChallenge.id : ''}">
                 <p class="empty-state" th:if="${#lists.isEmpty(messages)}">No messages in this room yet.</p>
                 <article class="chat-message" th:each="message : ${messages}">
                     <div>

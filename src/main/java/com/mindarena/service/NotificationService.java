@@ -1,5 +1,8 @@
 package com.mindarena.service;
 
+import com.mindarena.event.LeaderboardChangedEvent;
+import com.mindarena.event.NotificationCreatedEvent;
+import com.mindarena.event.XpAwardedEvent;
 import com.mindarena.model.NotificationType;
 import com.mindarena.model.PlatformNews;
 import com.mindarena.model.PlayerRank;
@@ -9,6 +12,7 @@ import com.mindarena.repository.PlatformNewsRepository;
 import com.mindarena.repository.UserNotificationRepository;
 import com.mindarena.repository.UserRepository;
 import java.util.List;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,15 +22,18 @@ public class NotificationService {
     private final UserNotificationRepository notificationRepository;
     private final PlatformNewsRepository platformNewsRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public NotificationService(
             UserNotificationRepository notificationRepository,
             PlatformNewsRepository platformNewsRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            ApplicationEventPublisher eventPublisher
     ) {
         this.notificationRepository = notificationRepository;
         this.platformNewsRepository = platformNewsRepository;
         this.userRepository = userRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     public List<UserNotification> personalNotifications(User user) {
@@ -47,7 +54,14 @@ public class NotificationService {
 
     public void notify(User recipient, NotificationType type, String message, String linkUrl) {
         if (recipient != null) {
-            notificationRepository.save(new UserNotification(recipient, type, message, linkUrl));
+            UserNotification notification = notificationRepository.save(new UserNotification(recipient, type, message, linkUrl));
+            eventPublisher.publishEvent(new NotificationCreatedEvent(
+                    notification.getId(),
+                    recipient.getId(),
+                    type.name(),
+                    message,
+                    linkUrl
+            ));
         }
     }
 
@@ -61,6 +75,14 @@ public class NotificationService {
         PlayerRank before = PlayerRank.fromScore(user.getScore());
         user.addScore(points);
         userRepository.save(user);
+        eventPublisher.publishEvent(new XpAwardedEvent(
+                user.getId(),
+                points,
+                user.getScore(),
+                reason,
+                linkUrl
+        ));
+        eventPublisher.publishEvent(LeaderboardChangedEvent.globalOnly());
         notify(user, NotificationType.XP, reason + " +" + points + " XP earned.", linkUrl);
         PlayerRank after = PlayerRank.fromScore(user.getScore());
         if (after != before) {

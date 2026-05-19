@@ -2,8 +2,11 @@ package com.mindarena.dto;
 
 import com.mindarena.model.PlayerRank;
 import com.mindarena.model.User;
+import java.io.Serializable;
 
-public class LeaderboardEntry {
+public class LeaderboardEntry implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final User user;
     private final long xp;

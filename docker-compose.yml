@@ -1,0 +1,71 @@
+services:
+  db:
+    image: mariadb:11.4
+    environment:
+      MARIADB_DATABASE: mindarena
+      MARIADB_USER: mindarena
+      MARIADB_PASSWORD: mindarena123
+      MARIADB_ROOT_PASSWORD: mindarena_root
+    volumes:
+      - mindarena-db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7.2-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - mindarena-redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: mindarena
+      RABBITMQ_DEFAULT_PASS: mindarena123
+    ports:
+      - "15672:15672"
+    volumes:
+      - mindarena-rabbitmq:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    environment:
+      DB_URL: jdbc:mariadb://db:3306/mindarena
+      DB_USERNAME: mindarena
+      DB_PASSWORD: mindarena123
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: mindarena
+      RABBITMQ_PASSWORD: mindarena123
+    ports:
+      - "8081:8080"
+    volumes:
+      - mindarena-uploads:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+volumes:
+  mindarena-db:
+  mindarena-redis:
+  mindarena-rabbitmq:
+  mindarena-uploads:

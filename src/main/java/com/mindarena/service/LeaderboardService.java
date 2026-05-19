@@ -1,12 +1,14 @@
 package com.mindarena.service;
 
 import com.mindarena.dto.LeaderboardEntry;
+import com.mindarena.config.PlatformConfig;
 import com.mindarena.model.Arena;
 import com.mindarena.model.Challenge;
 import com.mindarena.model.Role;
 import com.mindarena.repository.SubmissionRepository;
 import com.mindarena.repository.UserRepository;
 import java.util.List;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,7 @@ public class LeaderboardService {
         this.privilegeService = privilegeService;
     }
 
+    @Cacheable(cacheNames = PlatformConfig.GLOBAL_LEADERBOARD_CACHE)
     public List<LeaderboardEntry> globalLeaders() {
         return userRepository.findByRoleOrderByScoreDesc(Role.USER, PageRequest.of(0, LIMIT)).stream()
                 .filter(privilegeService::appearsInActiveRankings)
@@ -32,6 +35,7 @@ public class LeaderboardService {
                 .toList();
     }
 
+    @Cacheable(cacheNames = PlatformConfig.ARENA_LEADERBOARD_CACHE, key = "#arena.id")
     public List<LeaderboardEntry> arenaLeaders(Arena arena) {
         return submissionRepository.rankByArena(arena).stream()
                 .filter(entry -> privilegeService.appearsInActiveRankings(entry.getUser()))
@@ -39,6 +43,7 @@ public class LeaderboardService {
                 .toList();
     }
 
+    @Cacheable(cacheNames = PlatformConfig.CHALLENGE_LEADERBOARD_CACHE, key = "#challenge.id")
     public List<LeaderboardEntry> challengeLeaders(Challenge challenge) {
         return submissionRepository.rankByChallenge(challenge).stream()
                 .filter(entry -> privilegeService.appearsInActiveRankings(entry.getUser()))
