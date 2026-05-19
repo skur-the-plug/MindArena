@@ -14,6 +14,7 @@ The current frontend uses a dark "Cyber Arena" interface with a mission hub, are
 - Upvote system with duplicate-vote prevention
 - Global, arena, challenge, and rank leaderboards
 - Chat rooms for global, arena, and challenge discussion
+- Real-time chat updates over WebSockets, with the existing form submit as a fallback
 - Admin pages for challenge creation and moderation
 
 ## Stack
@@ -28,7 +29,15 @@ The current frontend uses a dark "Cyber Arena" interface with a mission hub, are
 
 ## Run Locally
 
-Create a MariaDB database:
+The fastest full local setup is Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+Open `http://localhost:8081`.
+
+To run against a manually managed database, create a MariaDB database:
 
 ```sql
 CREATE DATABASE mindarena CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
