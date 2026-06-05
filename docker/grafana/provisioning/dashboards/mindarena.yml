@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: MindArena
+    orgId: 1
+    folder: MindArena
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards

@@ -13,12 +13,23 @@ spec:
       labels:
         app: discovery
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: discovery
           image: mindarena/discovery-server:0.1.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8761
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+
           readinessProbe:
             httpGet:
               path: /actuator/health
@@ -59,6 +70,11 @@ spec:
       labels:
         app: config
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: config
           image: mindarena/config-server:0.1.0
@@ -71,6 +87,12 @@ spec:
                 configMapKeyRef:
                   name: mindarena-config
                   key: eureka-default-zone
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+
           readinessProbe:
             httpGet:
               path: /actuator/health
@@ -111,6 +133,11 @@ spec:
       labels:
         app: gateway
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: gateway
           image: mindarena/api-gateway:0.1.0
@@ -123,6 +150,12 @@ spec:
                 configMapKeyRef:
                   name: mindarena-config
                   key: eureka-default-zone
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+
           readinessProbe:
             httpGet:
               path: /actuator/health

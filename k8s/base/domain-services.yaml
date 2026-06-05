@@ -13,6 +13,11 @@ spec:
       labels:
         app: identity
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: identity
           image: mindarena/identity-service:0.1.0
@@ -39,6 +44,12 @@ spec:
                 secretKeyRef:
                   name: mindarena-secrets
                   key: db-password
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+
           readinessProbe:
             httpGet:
               path: /actuator/health
@@ -79,6 +90,11 @@ spec:
       labels:
         app: challenge
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: challenge
           image: mindarena/challenge-service:0.1.0
@@ -105,6 +121,12 @@ spec:
                 secretKeyRef:
                   name: mindarena-secrets
                   key: db-password
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+
           readinessProbe:
             httpGet:
               path: /actuator/health
@@ -145,6 +167,11 @@ spec:
       labels:
         app: ranking
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: ranking
           image: mindarena/ranking-service:0.1.0
@@ -181,6 +208,12 @@ spec:
                 configMapKeyRef:
                   name: mindarena-config
                   key: redis-port
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+
           readinessProbe:
             httpGet:
               path: /actuator/health
@@ -221,6 +254,11 @@ spec:
       labels:
         app: notification
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: notification
           image: mindarena/notification-service:0.1.0
@@ -247,6 +285,12 @@ spec:
                 secretKeyRef:
                   name: mindarena-secrets
                   key: db-password
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+
           readinessProbe:
             httpGet:
               path: /actuator/health
@@ -287,6 +331,11 @@ spec:
       labels:
         app: submission
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: submission
           image: mindarena/submission-service:0.1.0
@@ -313,6 +362,12 @@ spec:
                 secretKeyRef:
                   name: mindarena-secrets
                   key: db-password
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+
           readinessProbe:
             httpGet:
               path: /actuator/health
@@ -353,6 +408,11 @@ spec:
       labels:
         app: chat
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: chat
           image: mindarena/chat-service:0.1.0
@@ -379,6 +439,12 @@ spec:
                 secretKeyRef:
                   name: mindarena-secrets
                   key: db-password
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+
           readinessProbe:
             httpGet:
               path: /actuator/health

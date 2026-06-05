@@ -1,0 +1,30 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: discovery
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["discovery:8761"]
+
+  - job_name: config
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["config:8888"]
+
+  - job_name: gateway
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["gateway:8080"]
+
+  - job_name: domain-services
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - identity:8080
+          - challenge:8080
+          - ranking:8080
+          - notification:8080
+          - submission:8080
+          - chat:8080

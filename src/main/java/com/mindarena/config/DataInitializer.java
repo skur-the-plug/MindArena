@@ -11,6 +11,7 @@ import com.mindarena.domain.challenges.repository.PlatformNewsRepository;
 import com.mindarena.domain.identity.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -23,19 +24,28 @@ public class DataInitializer implements CommandLineRunner {
     private final PlatformNewsRepository platformNewsRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final boolean demoAdminEnabled;
+    private final String demoAdminEmail;
+    private final String demoAdminPassword;
 
     public DataInitializer(
             ArenaRepository arenaRepository,
             ChallengeRepository challengeRepository,
             PlatformNewsRepository platformNewsRepository,
             UserRepository userRepository,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            @Value("${mindarena.demo-admin.enabled:false}") boolean demoAdminEnabled,
+            @Value("${mindarena.demo-admin.email:admin@mindarena.local}") String demoAdminEmail,
+            @Value("${mindarena.demo-admin.password:}") String demoAdminPassword
     ) {
         this.arenaRepository = arenaRepository;
         this.challengeRepository = challengeRepository;
         this.platformNewsRepository = platformNewsRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.demoAdminEnabled = demoAdminEnabled;
+        this.demoAdminEmail = demoAdminEmail;
+        this.demoAdminPassword = demoAdminPassword;
     }
 
     @Override
@@ -48,14 +58,20 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void seedAdmin() {
-        if (userRepository.existsByEmail("admin@mindarena.local")) {
+        if (!demoAdminEnabled) {
+            return;
+        }
+        if (demoAdminPassword == null || demoAdminPassword.isBlank()) {
+            throw new IllegalStateException("mindarena.demo-admin.password must be set when demo admin seeding is enabled");
+        }
+        if (userRepository.existsByEmail(demoAdminEmail)) {
             return;
         }
 
         User admin = new User();
         admin.setFullName("MindArena Admin");
-        admin.setEmail("admin@mindarena.local");
-        admin.setPassword(passwordEncoder.encode("admin123"));
+        admin.setEmail(demoAdminEmail);
+        admin.setPassword(passwordEncoder.encode(demoAdminPassword));
         admin.setSkills("moderation, challenge design, product demos");
         admin.setInterests("learning platforms, competition, youth communities");
         admin.setRole(Role.ADMIN);
@@ -109,7 +125,7 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void backfillChallengeMetadata() {
-        User admin = userRepository.findByEmail("admin@mindarena.local").orElse(null);
+        User admin = userRepository.findByEmail(demoAdminEmail).orElse(null);
         for (Challenge challenge : challengeRepository.findAll()) {
             boolean changed = false;
             if (challenge.getCreator() == null && admin != null) {
@@ -150,7 +166,7 @@ public class DataInitializer implements CommandLineRunner {
         if (platformNewsRepository.count() > 0) {
             return;
         }
-        User admin = userRepository.findByEmail("admin@mindarena.local").orElse(null);
+        User admin = userRepository.findByEmail(demoAdminEmail).orElse(null);
         com.mindarena.domain.challenges.model.PlatformNews news = new com.mindarena.domain.challenges.model.PlatformNews();
         news.setAuthor(admin);
         news.setCategory("Weekly Challenge");

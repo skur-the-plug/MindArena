@@ -39,6 +39,8 @@ The optional legacy UI uses Thymeleaf, HTML, CSS, and JavaScript.
 The default local setup starts the microservices backend only:
 
 ```bash
+cp .env.example .env
+# edit .env and set real local credentials
 docker compose up --build
 ```
 
@@ -75,8 +77,16 @@ If you intentionally want the gateway to proxy the legacy UI, also start the gat
 To backfill service schemas from the monolith schema after the stack is up:
 
 ```bash
-docker compose exec -T db mariadb -uroot -pmindarena_root < docker/db/backfill-service-schemas.sql
+docker compose exec -T db sh -c 'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD"' < docker/db/backfill-service-schemas.sql
 ```
+
+Prometheus and Grafana are available through the monitoring profile:
+
+```bash
+docker compose --profile monitoring up --build
+```
+
+Prometheus runs at `http://localhost:9090`; Grafana runs at `http://localhost:3000`.
 
 Run microservices route smoke checks:
 
@@ -98,12 +108,12 @@ To run against a manually managed database, create a MariaDB database:
 CREATE DATABASE mindarena CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-Set credentials if they differ from the defaults:
+Set credentials with environment variables:
 
 ```bash
 export DB_URL=jdbc:mariadb://localhost:3306/mindarena
-export DB_USERNAME=mindarena
-export DB_PASSWORD=mindarena123
+export DB_USERNAME=replace-with-db-user
+export DB_PASSWORD=replace-with-db-password
 ```
 
 Run:
@@ -114,7 +124,10 @@ mvn spring-boot:run
 
 Open `http://localhost:8080`.
 
-Demo admin account:
+Demo admin seeding is disabled by default. To create a local demo admin, set:
 
-- Email: `admin@mindarena.local`
-- Password: `admin123`
+```bash
+export DEMO_ADMIN_ENABLED=true
+export DEMO_ADMIN_EMAIL=admin@mindarena.local
+export DEMO_ADMIN_PASSWORD=replace-with-demo-admin-password
+```

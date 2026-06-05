@@ -24,12 +24,28 @@ docker build -t mindarena/chat-service:0.1.0 services/chat-service
 
 ## Deploy
 
+Create the runtime secret from your secret manager before applying workloads:
+
 ```bash
 kubectl apply -f k8s/base/namespace.yaml
+kubectl create secret generic mindarena-secrets \
+  --namespace mindarena \
+  --from-literal=db-username="$DB_USERNAME" \
+  --from-literal=db-password="$DB_PASSWORD" \
+  --from-literal=db-root-password="$DB_ROOT_PASSWORD" \
+  --from-literal=rabbitmq-username="$RABBITMQ_USERNAME" \
+  --from-literal=rabbitmq-password="$RABBITMQ_PASSWORD" \
+  --from-literal=grafana-admin-user="$GRAFANA_ADMIN_USER" \
+  --from-literal=grafana-admin-password="$GRAFANA_ADMIN_PASSWORD"
+```
+
+```bash
 kubectl apply -f k8s/base/config.yaml
+kubectl apply -f k8s/base/security.yaml
 kubectl apply -f k8s/base/infra.yaml
 kubectl apply -f k8s/base/spring-cloud.yaml
 kubectl apply -f k8s/base/domain-services.yaml
+kubectl apply -f k8s/base/monitoring.yaml
 ```
 
 Watch startup:
@@ -45,9 +61,17 @@ kubectl port-forward -n mindarena service/gateway 8082:8080
 BASE_URL=http://localhost:8082 bash scripts/smoke-step4.sh
 ```
 
+Open monitoring:
+
+```bash
+kubectl port-forward -n mindarena service/prometheus 9090:9090
+kubectl port-forward -n mindarena service/grafana 3000:3000
+```
+
 ## Notes
 
 - The gateway is exposed as a `NodePort` on `30082` and can also be accessed by port-forwarding.
 - MariaDB, Redis, and RabbitMQ use PVCs for local persistence.
-- Secrets are included for local development only. Replace them with external secret management for production.
-- This is a Kubernetes base, not a full production platform. Production would usually add Helm or Kustomize overlays, ingress/TLS, autoscaling, network policies, centralized logging, metrics, tracing, and managed databases.
+- Secrets are not committed. `secrets.example.yaml` is a template only.
+- The base includes restricted Pod Security labels, non-privileged container settings, network policies, resource quotas, disruption budgets, HPAs, and Prometheus/Grafana monitoring.
+- Production still needs cluster-specific ingress/TLS, managed databases, external secret management, centralized logging, tracing, image signing policy, and backup/restore procedures.

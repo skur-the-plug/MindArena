@@ -24,6 +24,11 @@ spec:
       labels:
         app: mariadb
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: mariadb
           image: mariadb:11.4
@@ -47,6 +52,12 @@ spec:
                 secretKeyRef:
                   name: mindarena-secrets
                   key: db-root-password
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+
           readinessProbe:
             exec:
               command: ["healthcheck.sh", "--connect", "--innodb_initialized"]
@@ -104,12 +115,23 @@ spec:
       labels:
         app: redis
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: redis
           image: redis:7.2-alpine
           args: ["redis-server", "--appendonly", "yes"]
           ports:
             - containerPort: 6379
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+
           readinessProbe:
             exec:
               command: ["redis-cli", "ping"]
@@ -167,6 +189,11 @@ spec:
       labels:
         app: rabbitmq
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: rabbitmq
           image: rabbitmq:3.13-management-alpine
@@ -184,6 +211,12 @@ spec:
                 secretKeyRef:
                   name: mindarena-secrets
                   key: rabbitmq-password
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+
           readinessProbe:
             exec:
               command: ["rabbitmq-diagnostics", "-q", "ping"]

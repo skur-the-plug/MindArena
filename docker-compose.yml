@@ -3,9 +3,9 @@ services:
     image: mariadb:11.4
     environment:
       MARIADB_DATABASE: mindarena
-      MARIADB_USER: mindarena
-      MARIADB_PASSWORD: mindarena123
-      MARIADB_ROOT_PASSWORD: mindarena_root
+      MARIADB_USER: ${MARIADB_USER:?set MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:?set MARIADB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?set MARIADB_ROOT_PASSWORD}
     volumes:
       - mindarena-db:/var/lib/mysql
       - ./docker/db/init:/docker-entrypoint-initdb.d:ro
@@ -29,8 +29,8 @@ services:
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
     environment:
-      RABBITMQ_DEFAULT_USER: mindarena
-      RABBITMQ_DEFAULT_PASS: mindarena123
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:?set RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:?set RABBITMQ_DEFAULT_PASS}
     ports:
       - "15672:15672"
     volumes:
@@ -72,8 +72,8 @@ services:
       SERVICE_NAME: mindarena-ranking-service
       EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka/
       DB_URL: jdbc:mariadb://db:3306/mindarena_ranking
-      DB_USERNAME: mindarena
-      DB_PASSWORD: mindarena123
+      DB_USERNAME: ${MARIADB_USER:?set MARIADB_USER}
+      DB_PASSWORD: ${MARIADB_PASSWORD:?set MARIADB_PASSWORD}
       REDIS_HOST: redis
       REDIS_PORT: 6379
     depends_on:
@@ -90,8 +90,8 @@ services:
       SERVICE_NAME: mindarena-identity-service
       EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka/
       DB_URL: jdbc:mariadb://db:3306/mindarena_identity
-      DB_USERNAME: mindarena
-      DB_PASSWORD: mindarena123
+      DB_USERNAME: ${MARIADB_USER:?set MARIADB_USER}
+      DB_PASSWORD: ${MARIADB_PASSWORD:?set MARIADB_PASSWORD}
     depends_on:
       db:
         condition: service_healthy
@@ -104,8 +104,8 @@ services:
       SERVICE_NAME: mindarena-challenge-service
       EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka/
       DB_URL: jdbc:mariadb://db:3306/mindarena_challenge
-      DB_USERNAME: mindarena
-      DB_PASSWORD: mindarena123
+      DB_USERNAME: ${MARIADB_USER:?set MARIADB_USER}
+      DB_PASSWORD: ${MARIADB_PASSWORD:?set MARIADB_PASSWORD}
     depends_on:
       db:
         condition: service_healthy
@@ -118,8 +118,8 @@ services:
       SERVICE_NAME: mindarena-notification-service
       EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka/
       DB_URL: jdbc:mariadb://db:3306/mindarena_notification
-      DB_USERNAME: mindarena
-      DB_PASSWORD: mindarena123
+      DB_USERNAME: ${MARIADB_USER:?set MARIADB_USER}
+      DB_PASSWORD: ${MARIADB_PASSWORD:?set MARIADB_PASSWORD}
     depends_on:
       db:
         condition: service_healthy
@@ -132,8 +132,8 @@ services:
       SERVICE_NAME: mindarena-submission-service
       EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka/
       DB_URL: jdbc:mariadb://db:3306/mindarena_submission
-      DB_USERNAME: mindarena
-      DB_PASSWORD: mindarena123
+      DB_USERNAME: ${MARIADB_USER:?set MARIADB_USER}
+      DB_PASSWORD: ${MARIADB_PASSWORD:?set MARIADB_PASSWORD}
     depends_on:
       db:
         condition: service_healthy
@@ -146,8 +146,8 @@ services:
       SERVICE_NAME: mindarena-chat-service
       EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka/
       DB_URL: jdbc:mariadb://db:3306/mindarena_chat
-      DB_USERNAME: mindarena
-      DB_PASSWORD: mindarena123
+      DB_USERNAME: ${MARIADB_USER:?set MARIADB_USER}
+      DB_PASSWORD: ${MARIADB_PASSWORD:?set MARIADB_PASSWORD}
     depends_on:
       db:
         condition: service_healthy
@@ -162,14 +162,17 @@ services:
       EUREKA_ENABLED: true
       EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka/
       DB_URL: jdbc:mariadb://db:3306/mindarena
-      DB_USERNAME: mindarena
-      DB_PASSWORD: mindarena123
+      DB_USERNAME: ${MARIADB_USER:?set MARIADB_USER}
+      DB_PASSWORD: ${MARIADB_PASSWORD:?set MARIADB_PASSWORD}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
-      RABBITMQ_USERNAME: mindarena
-      RABBITMQ_PASSWORD: mindarena123
+      RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER:?set RABBITMQ_DEFAULT_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS:?set RABBITMQ_DEFAULT_PASS}
+      DEMO_ADMIN_ENABLED: ${DEMO_ADMIN_ENABLED:-false}
+      DEMO_ADMIN_EMAIL: ${DEMO_ADMIN_EMAIL:-admin@mindarena.local}
+      DEMO_ADMIN_PASSWORD: ${DEMO_ADMIN_PASSWORD:-}
     ports:
       - "8081:8080"
     volumes:
@@ -184,8 +187,41 @@ services:
       discovery:
         condition: service_started
 
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    profiles: ["monitoring"]
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - mindarena-prometheus:/prometheus
+    depends_on:
+      discovery:
+        condition: service_started
+      gateway:
+        condition: service_started
+
+  grafana:
+    image: grafana/grafana:11.2.2
+    profiles: ["monitoring"]
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:?set GRAFANA_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?set GRAFANA_ADMIN_PASSWORD}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./docker/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - mindarena-grafana:/var/lib/grafana
+    depends_on:
+      prometheus:
+        condition: service_started
+
 volumes:
   mindarena-db:
   mindarena-redis:
   mindarena-rabbitmq:
   mindarena-uploads:
+  mindarena-prometheus:
+  mindarena-grafana:
