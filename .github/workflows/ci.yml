@@ -35,16 +35,15 @@ jobs:
           -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
           -Dsonar.host.url=${{ vars.SONAR_HOST_URL || 'https://sonarcloud.io' }}
       - name: OWASP dependency check
-        uses: dependency-check/Dependency-Check_Action@main
-        with:
-          project: MindArena
-          path: .
-          format: SARIF
-          out: reports/dependency-check
-          args: --enableRetired --failOnCVSS 7
+        run: >
+          mvn -B org.owasp:dependency-check-maven:check
+          -Dformat=SARIF
+          -DoutputDirectory=reports/dependency-check
+          -DfailBuildOnCVSS=7
+          -DenableRetired=true
       - name: Upload dependency scan SARIF
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        if: always() && hashFiles('reports/dependency-check/dependency-check-report.sarif') != ''
         with:
           sarif_file: reports/dependency-check/dependency-check-report.sarif
       - name: Secret scan
