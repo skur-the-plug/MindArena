@@ -1,14 +1,20 @@
 # MindArena
 
-MindArena is a Spring Boot and Spring Cloud MVP for competitive social learning. Users join arenas, solve challenges, submit structured answers, vote on peer work, receive notifications, chat around arenas/challenges, and climb leaderboards.
+MindArena is a Spring Boot and Spring Cloud MVP for competitive social
+learning. Users join arenas, solve challenges, submit structured answers,
+vote on peer work, receive notifications, chat around arenas/challenges,
+and climb leaderboards.
 
-This repository is structured as a development/staging DevOps platform for an academic MVP. It is not presented as an enterprise production platform.
+This repository is structured as a development/staging DevOps platform
+for an academic MVP. It is not presented as an enterprise production
+platform.
 
 ## Architecture
 
 The default runtime is a Spring Cloud microservices backend:
 
-- `services/api-gateway`: Spring Cloud Gateway entry point on port `8080` in containers, published locally as `8082`.
+- `services/api-gateway`: Spring Cloud Gateway entry point on port `8080`
+  in containers, published locally as `8082`.
 - `services/discovery-server`: Eureka service registry on port `8761`.
 - `services/config-server`: Spring Cloud Config Server on port `8888`.
 - `services/identity-service`: registration, profiles, and identity API.
@@ -25,7 +31,8 @@ Supporting infrastructure:
 - RabbitMQ for asynchronous messaging.
 - Prometheus and Grafana for local monitoring.
 
-The root Spring Boot application is retained as an optional legacy Thymeleaf UI/demo app under the `legacy-ui` Docker Compose profile.
+The root Spring Boot application is retained as an optional legacy
+Thymeleaf UI/demo app under the `legacy-ui` Docker Compose profile.
 
 ## DevOps Scope
 
@@ -34,7 +41,8 @@ Implemented:
 - GitHub Actions CI for Maven verification and microservice builds.
 - JaCoCo coverage report generation.
 - Conditional SonarCloud analysis when `SONAR_TOKEN` is configured.
-- Dependency vulnerability scanning through OWASP Dependency Check when `NVD_API_KEY` is configured, with Trivy SARIF fallback otherwise.
+- Dependency vulnerability scanning through OWASP Dependency Check when
+  `NVD_API_KEY` is configured, with Trivy SARIF fallback otherwise.
 - Gitleaks secret scanning.
 - Docker Compose local runtime with required environment-based secrets.
 - Kubernetes base manifests for local/dev clusters.
@@ -135,7 +143,8 @@ BASE_URL=http://localhost:8082 bash scripts/smoke-step4.sh
 
 ## Kubernetes
 
-The Kubernetes base in `k8s/base` targets local/dev clusters such as Minikube, Kind, or Docker Desktop Kubernetes. It includes:
+The Kubernetes base in `k8s/base` targets local/dev clusters such as
+Minikube, Kind, or Docker Desktop Kubernetes. It includes:
 
 - Namespace with restricted pod security labels.
 - Runtime ConfigMap and externalized Secret template.
@@ -148,7 +157,8 @@ Read [k8s/base/README.md](k8s/base/README.md) before applying manifests.
 
 ## Secrets
 
-Real secrets are not committed. Local Compose uses `.env`; Kubernetes uses `mindarena-secrets`, created at deploy time.
+Real secrets are not committed. Local Compose uses `.env`; Kubernetes
+uses `mindarena-secrets`, created at deploy time.
 
 Demo admin seeding is disabled by default. To enable it locally:
 
@@ -162,4 +172,5 @@ export DEMO_ADMIN_PASSWORD=replace-with-demo-admin-password
 
 Current MVP release: `v0.1.0`.
 
-Release and rollback notes are maintained in GitHub Releases and summarized in [DEVOPS.md](DEVOPS.md).
+Release and rollback notes are maintained in GitHub Releases and
+summarized in [DEVOPS.md](DEVOPS.md).
