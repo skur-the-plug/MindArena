@@ -34,7 +34,30 @@ Supporting infrastructure:
 The root Spring Boot application is retained as an optional legacy
 Thymeleaf UI/demo app under the `legacy-ui` Docker Compose profile.
 
-## DevOps Scope
+Text architecture diagram:
+
+```text
+Browser / API client
+        |
+        v
+Spring Cloud Gateway (:8082 locally)
+        |
+        +--> Identity Service
+        +--> Challenge Service
+        +--> Ranking Service ----> Redis
+        +--> Notification Service
+        +--> Submission Service
+        +--> Chat Service
+        |
+        +--> Eureka Discovery
+        +--> Config Server
+
+Domain services ----> MariaDB service schemas
+Domain events  ----> RabbitMQ
+Metrics        ----> Prometheus ----> Grafana
+```
+
+## DevOps And Platform Practices
 
 Implemented:
 
@@ -44,13 +67,19 @@ Implemented:
 - Dependency vulnerability scanning through OWASP Dependency Check when
   `NVD_API_KEY` is configured, with Trivy SARIF fallback otherwise.
 - Gitleaks secret scanning.
+- Dependabot for GitHub Actions, Maven, Dockerfiles, and Docker Compose.
 - Docker Compose local runtime with required environment-based secrets.
 - Kubernetes base manifests for local/dev clusters.
 - Prometheus/Grafana monitoring for Compose and Kubernetes.
 - Smoke-test script for deployed gateway routes.
 - Non-root application containers and hardened Kubernetes base settings.
 
-See [DEVOPS.md](DEVOPS.md) for deployment, CI, monitoring, smoke-test, and rollback details.
+This is intentionally a development/staging DevOps MVP. Clean production
+hardening is still required before using this as a real production
+platform.
+
+See [DEVOPS.md](DEVOPS.md) for deployment, CI, monitoring, smoke-test,
+and rollback details.
 
 ## Repository Layout
 
@@ -82,7 +111,8 @@ Create a local environment file:
 cp .env.example .env
 ```
 
-Edit `.env` and replace every placeholder value. Then start the default microservices runtime:
+Edit `.env` and replace every placeholder value. Then start the default
+microservices runtime:
 
 ```bash
 docker compose up --build
@@ -151,7 +181,8 @@ Minikube, Kind, or Docker Desktop Kubernetes. It includes:
 - MariaDB, Redis, RabbitMQ.
 - Discovery, config server, gateway, and domain services.
 - Prometheus and Grafana.
-- Network policies, resource quota, limit range, HPAs, PDBs, and non-privileged container settings.
+- Network policies, resource quota, limit range, HPAs, PDBs, and
+  non-privileged container settings.
 
 Read [k8s/base/README.md](k8s/base/README.md) before applying manifests.
 
@@ -174,3 +205,23 @@ Current MVP release: `v0.1.0`.
 
 Release and rollback notes are maintained in GitHub Releases and
 summarized in [DEVOPS.md](DEVOPS.md).
+
+Rollback summary:
+
+- Compose rollback: check out tag `v0.1.0`, restore `.env`, rebuild, and
+  run the gateway smoke test.
+- Kubernetes rollback: check out tag `v0.1.0`, rebuild or pull `0.1.0`
+  images, reapply `k8s/base`, or use `kubectl rollout undo` for one bad
+  deployment.
+- Rollback is accepted only when pods are ready, smoke tests pass,
+  Prometheus targets are up, and critical service logs are clean.
+
+Production hardening still required:
+
+- External secret management instead of local `.env` or manually created
+  Kubernetes secrets.
+- Managed databases or database backup/restore automation.
+- Ingress, TLS, and production DNS.
+- Centralized logs and distributed tracing.
+- Signed images and admission policies.
+- Stronger test coverage and release promotion gates.
