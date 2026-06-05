@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
     permissions:
       contents: read
       security-events: write
@@ -34,13 +35,36 @@ jobs:
           -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
           -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
           -Dsonar.host.url=${{ vars.SONAR_HOST_URL || 'https://sonarcloud.io' }}
+      - name: Prepare security report directory
+        run: mkdir -p reports/dependency-check
+      - name: Cache OWASP Dependency Check data
+        if: ${{ env.NVD_API_KEY != '' }}
+        uses: actions/cache@v4
+        with:
+          path: .dependency-check-data
+          key: dependency-check-data-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            dependency-check-data-${{ runner.os }}-
       - name: OWASP dependency check
+        if: ${{ env.NVD_API_KEY != '' }}
         run: >
           mvn -B org.owasp:dependency-check-maven:check
           -Dformat=SARIF
           -DoutputDirectory=reports/dependency-check
+          -DdataDirectory=.dependency-check-data
           -DfailBuildOnCVSS=7
           -DenableRetired=true
+          -DnvdApiKey="${NVD_API_KEY}"
+      - name: Dependency vulnerability scan
+        if: ${{ env.NVD_API_KEY == '' }}
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: reports/dependency-check/dependency-check-report.sarif
+          severity: HIGH,CRITICAL
+          exit-code: "1"
       - name: Upload dependency scan SARIF
         uses: github/codeql-action/upload-sarif@v4
         if: always() && hashFiles('reports/dependency-check/dependency-check-report.sarif') != ''
