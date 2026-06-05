@@ -8,6 +8,7 @@ services:
       MARIADB_ROOT_PASSWORD: mindarena_root
     volumes:
       - mindarena-db:/var/lib/mysql
+      - ./docker/db/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 10s
@@ -45,6 +46,16 @@ services:
     ports:
       - "8761:8761"
 
+  config:
+    build: ./services/config-server
+    environment:
+      EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka/
+    ports:
+      - "8888:8888"
+    depends_on:
+      discovery:
+        condition: service_started
+
   gateway:
     build: ./services/api-gateway
     environment:
@@ -55,7 +66,96 @@ services:
       discovery:
         condition: service_started
 
+  ranking:
+    build: ./services/ranking-service
+    environment:
+      SERVICE_NAME: mindarena-ranking-service
+      EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka/
+      DB_URL: jdbc:mariadb://db:3306/mindarena_ranking
+      DB_USERNAME: mindarena
+      DB_PASSWORD: mindarena123
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      discovery:
+        condition: service_started
+
+  identity:
+    build: ./services/identity-service
+    environment:
+      SERVICE_NAME: mindarena-identity-service
+      EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka/
+      DB_URL: jdbc:mariadb://db:3306/mindarena_identity
+      DB_USERNAME: mindarena
+      DB_PASSWORD: mindarena123
+    depends_on:
+      db:
+        condition: service_healthy
+      discovery:
+        condition: service_started
+
+  challenge:
+    build: ./services/challenge-service
+    environment:
+      SERVICE_NAME: mindarena-challenge-service
+      EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka/
+      DB_URL: jdbc:mariadb://db:3306/mindarena_challenge
+      DB_USERNAME: mindarena
+      DB_PASSWORD: mindarena123
+    depends_on:
+      db:
+        condition: service_healthy
+      discovery:
+        condition: service_started
+
+  notification:
+    build: ./services/notification-service
+    environment:
+      SERVICE_NAME: mindarena-notification-service
+      EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka/
+      DB_URL: jdbc:mariadb://db:3306/mindarena_notification
+      DB_USERNAME: mindarena
+      DB_PASSWORD: mindarena123
+    depends_on:
+      db:
+        condition: service_healthy
+      discovery:
+        condition: service_started
+
+  submission:
+    build: ./services/submission-service
+    environment:
+      SERVICE_NAME: mindarena-submission-service
+      EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka/
+      DB_URL: jdbc:mariadb://db:3306/mindarena_submission
+      DB_USERNAME: mindarena
+      DB_PASSWORD: mindarena123
+    depends_on:
+      db:
+        condition: service_healthy
+      discovery:
+        condition: service_started
+
+  chat:
+    build: ./services/chat-service
+    environment:
+      SERVICE_NAME: mindarena-chat-service
+      EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka/
+      DB_URL: jdbc:mariadb://db:3306/mindarena_chat
+      DB_USERNAME: mindarena
+      DB_PASSWORD: mindarena123
+    depends_on:
+      db:
+        condition: service_healthy
+      discovery:
+        condition: service_started
+
   app:
+    profiles: ["legacy-ui"]
     build: .
     environment:
       SERVICE_NAME: mindarena-app

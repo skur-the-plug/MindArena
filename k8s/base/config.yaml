@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mindarena-config
+  namespace: mindarena
+data:
+  eureka-default-zone: http://discovery:8761/eureka/
+  redis-host: redis
+  redis-port: "6379"
+  rabbitmq-host: rabbitmq
+  rabbitmq-port: "5672"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mindarena-secrets
+  namespace: mindarena
+type: Opaque
+stringData:
+  db-username: mindarena
+  db-password: mindarena123
+  db-root-password: mindarena_root
+  rabbitmq-username: mindarena
+  rabbitmq-password: mindarena123

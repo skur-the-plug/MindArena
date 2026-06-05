@@ -1,0 +1,405 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity
+  namespace: mindarena
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: identity
+  template:
+    metadata:
+      labels:
+        app: identity
+    spec:
+      containers:
+        - name: identity
+          image: mindarena/identity-service:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SERVICE_NAME
+              value: mindarena-identity-service
+            - name: EUREKA_DEFAULT_ZONE
+              valueFrom:
+                configMapKeyRef:
+                  name: mindarena-config
+                  key: eureka-default-zone
+            - name: DB_URL
+              value: jdbc:mariadb://db:3306/mindarena_identity
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mindarena-secrets
+                  key: db-username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mindarena-secrets
+                  key: db-password
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 45
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 150m
+              memory: 384Mi
+            limits:
+              memory: 768Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: identity
+  namespace: mindarena
+spec:
+  selector:
+    app: identity
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: challenge
+  namespace: mindarena
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: challenge
+  template:
+    metadata:
+      labels:
+        app: challenge
+    spec:
+      containers:
+        - name: challenge
+          image: mindarena/challenge-service:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SERVICE_NAME
+              value: mindarena-challenge-service
+            - name: EUREKA_DEFAULT_ZONE
+              valueFrom:
+                configMapKeyRef:
+                  name: mindarena-config
+                  key: eureka-default-zone
+            - name: DB_URL
+              value: jdbc:mariadb://db:3306/mindarena_challenge
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mindarena-secrets
+                  key: db-username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mindarena-secrets
+                  key: db-password
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 45
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 150m
+              memory: 384Mi
+            limits:
+              memory: 768Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: challenge
+  namespace: mindarena
+spec:
+  selector:
+    app: challenge
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ranking
+  namespace: mindarena
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ranking
+  template:
+    metadata:
+      labels:
+        app: ranking
+    spec:
+      containers:
+        - name: ranking
+          image: mindarena/ranking-service:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SERVICE_NAME
+              value: mindarena-ranking-service
+            - name: EUREKA_DEFAULT_ZONE
+              valueFrom:
+                configMapKeyRef:
+                  name: mindarena-config
+                  key: eureka-default-zone
+            - name: DB_URL
+              value: jdbc:mariadb://db:3306/mindarena_ranking
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mindarena-secrets
+                  key: db-username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mindarena-secrets
+                  key: db-password
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: mindarena-config
+                  key: redis-host
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: mindarena-config
+                  key: redis-port
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 45
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 150m
+              memory: 384Mi
+            limits:
+              memory: 768Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ranking
+  namespace: mindarena
+spec:
+  selector:
+    app: ranking
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification
+  namespace: mindarena
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification
+  template:
+    metadata:
+      labels:
+        app: notification
+    spec:
+      containers:
+        - name: notification
+          image: mindarena/notification-service:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SERVICE_NAME
+              value: mindarena-notification-service
+            - name: EUREKA_DEFAULT_ZONE
+              valueFrom:
+                configMapKeyRef:
+                  name: mindarena-config
+                  key: eureka-default-zone
+            - name: DB_URL
+              value: jdbc:mariadb://db:3306/mindarena_notification
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mindarena-secrets
+                  key: db-username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mindarena-secrets
+                  key: db-password
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 45
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 150m
+              memory: 384Mi
+            limits:
+              memory: 768Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification
+  namespace: mindarena
+spec:
+  selector:
+    app: notification
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: submission
+  namespace: mindarena
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: submission
+  template:
+    metadata:
+      labels:
+        app: submission
+    spec:
+      containers:
+        - name: submission
+          image: mindarena/submission-service:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SERVICE_NAME
+              value: mindarena-submission-service
+            - name: EUREKA_DEFAULT_ZONE
+              valueFrom:
+                configMapKeyRef:
+                  name: mindarena-config
+                  key: eureka-default-zone
+            - name: DB_URL
+              value: jdbc:mariadb://db:3306/mindarena_submission
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mindarena-secrets
+                  key: db-username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mindarena-secrets
+                  key: db-password
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 45
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 150m
+              memory: 384Mi
+            limits:
+              memory: 768Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: submission
+  namespace: mindarena
+spec:
+  selector:
+    app: submission
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat
+  namespace: mindarena
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat
+  template:
+    metadata:
+      labels:
+        app: chat
+    spec:
+      containers:
+        - name: chat
+          image: mindarena/chat-service:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SERVICE_NAME
+              value: mindarena-chat-service
+            - name: EUREKA_DEFAULT_ZONE
+              valueFrom:
+                configMapKeyRef:
+                  name: mindarena-config
+                  key: eureka-default-zone
+            - name: DB_URL
+              value: jdbc:mariadb://db:3306/mindarena_chat
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mindarena-secrets
+                  key: db-username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mindarena-secrets
+                  key: db-password
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 45
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 150m
+              memory: 384Mi
+            limits:
+              memory: 768Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat
+  namespace: mindarena
+spec:
+  selector:
+    app: chat
+  ports:
+    - port: 8080
+      targetPort: 8080

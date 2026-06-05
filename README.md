@@ -1,6 +1,6 @@
 # MindArena
 
-MindArena is a Spring Boot + MariaDB MVP for competitive social learning. Users join themed arenas, complete challenge missions, submit structured artifacts, vote on peer submissions, and climb prestige leaderboards.
+MindArena is a Spring Boot + Spring Cloud microservices MVP for competitive social learning. Users join themed arenas, complete challenge missions, submit structured artifacts, vote on peer submissions, and climb prestige leaderboards.
 
 The current frontend uses a dark "Cyber Arena" interface with a mission hub, arena zones, challenge briefing pages, chat entry points, and leaderboard views.
 
@@ -21,27 +21,76 @@ The current frontend uses a dark "Cyber Arena" interface with a mission hub, are
 
 - Java 21
 - Spring Boot 3
+- Spring Cloud Gateway
+- Spring Cloud Netflix Eureka
+- Spring Cloud Config
 - Spring Security
 - Spring Data JPA
-- Thymeleaf
+- Flyway
 - MariaDB
-- HTML/CSS/JavaScript
+- Redis
+- RabbitMQ
+- Docker Compose
+
+The optional legacy UI uses Thymeleaf, HTML, CSS, and JavaScript.
 
 ## Run Locally
 
-The fastest full local setup is Docker Compose:
+The default local setup starts the microservices backend only:
 
 ```bash
 docker compose up --build
 ```
 
-Open `http://localhost:8081`.
+Open the gateway at `http://localhost:8082`.
 
-The Spring Cloud runtime also exposes:
+The Spring Cloud runtime exposes:
 
 - Gateway: `http://localhost:8082`
+- Identity service: `mindarena-identity-service` behind the gateway at `/api/identity`
+- Challenge service: `mindarena-challenge-service` behind the gateway at `/api/challenges`
+- Ranking service: `mindarena-ranking-service` behind the gateway at `/api/leaderboards`
+- Notification service: `mindarena-notification-service` behind the gateway at `/api/notifications`
+- Submission service: `mindarena-submission-service` behind the gateway at `/api/submissions`
+- Chat service: `mindarena-chat-service` behind the gateway at `/api/chat`
+- Config server: `http://localhost:8888`
 - Eureka dashboard: `http://localhost:8761`
 - RabbitMQ management: `http://localhost:15672`
+
+The microservices runtime uses separate MariaDB schemas:
+`mindarena_identity`, `mindarena_challenge`, `mindarena_ranking`, `mindarena_notification`,
+`mindarena_submission`, and `mindarena_chat`.
+
+The old Thymeleaf MVC application is kept as an optional legacy/demo UI, outside the default
+microservices runtime:
+
+```bash
+docker compose --profile legacy-ui up --build
+```
+
+When that profile is enabled, the legacy UI is available directly at `http://localhost:8081`.
+If you intentionally want the gateway to proxy the legacy UI, also start the gateway with the
+`legacy-ui` Spring profile.
+
+To backfill service schemas from the monolith schema after the stack is up:
+
+```bash
+docker compose exec -T db mariadb -uroot -pmindarena_root < docker/db/backfill-service-schemas.sql
+```
+
+Run microservices route smoke checks:
+
+```bash
+BASE_URL=http://localhost:8082 bash scripts/smoke-step4.sh
+```
+
+## Run On Kubernetes
+
+Kubernetes manifests are available in `k8s/base` for a local/dev cluster. They deploy the same
+microservices backend with a gateway, discovery server, config server, MariaDB, Redis, RabbitMQ,
+and the extracted domain services.
+
+See `k8s/base/README.md` for image build and deployment commands.
 
 To run against a manually managed database, create a MariaDB database:
 
