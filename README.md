@@ -1,133 +1,165 @@
 # MindArena
 
-MindArena is a Spring Boot + Spring Cloud microservices MVP for competitive social learning. Users join themed arenas, complete challenge missions, submit structured artifacts, vote on peer submissions, and climb prestige leaderboards.
+MindArena is a Spring Boot and Spring Cloud MVP for competitive social learning. Users join arenas, solve challenges, submit structured answers, vote on peer work, receive notifications, chat around arenas/challenges, and climb leaderboards.
 
-The current frontend uses a dark "Cyber Arena" interface with a mission hub, arena zones, challenge briefing pages, chat entry points, and leaderboard views.
+This repository is structured as a development/staging DevOps platform for an academic MVP. It is not presented as an enterprise production platform.
 
-## MVP Features
+## Architecture
 
-- User registration and login
-- Profile with skills and interests
-- Arena browsing and joining
-- Challenge browsing by arena
-- Structured submission templates for coding, business, creativity, and debate challenges
-- Upvote system with duplicate-vote prevention
-- Global, arena, challenge, and rank leaderboards
-- Chat rooms for global, arena, and challenge discussion
-- Real-time chat updates over WebSockets, with the existing form submit as a fallback
-- Admin pages for challenge creation and moderation
+The default runtime is a Spring Cloud microservices backend:
 
-## Stack
+- `services/api-gateway`: Spring Cloud Gateway entry point on port `8080` in containers, published locally as `8082`.
+- `services/discovery-server`: Eureka service registry on port `8761`.
+- `services/config-server`: Spring Cloud Config Server on port `8888`.
+- `services/identity-service`: registration, profiles, and identity API.
+- `services/challenge-service`: arenas and challenge catalog API.
+- `services/ranking-service`: leaderboard and rank API with Redis support.
+- `services/notification-service`: user notification API.
+- `services/submission-service`: submissions, comments, and votes API.
+- `services/chat-service`: chat messages and rooms API.
+
+Supporting infrastructure:
+
+- MariaDB for service schemas.
+- Redis for cache/ranking support.
+- RabbitMQ for asynchronous messaging.
+- Prometheus and Grafana for local monitoring.
+
+The root Spring Boot application is retained as an optional legacy Thymeleaf UI/demo app under the `legacy-ui` Docker Compose profile.
+
+## DevOps Scope
+
+Implemented:
+
+- GitHub Actions CI for Maven verification and microservice builds.
+- JaCoCo coverage report generation.
+- Conditional SonarCloud analysis when `SONAR_TOKEN` is configured.
+- Dependency vulnerability scanning through OWASP Dependency Check when `NVD_API_KEY` is configured, with Trivy SARIF fallback otherwise.
+- Gitleaks secret scanning.
+- Docker Compose local runtime with required environment-based secrets.
+- Kubernetes base manifests for local/dev clusters.
+- Prometheus/Grafana monitoring for Compose and Kubernetes.
+- Smoke-test script for deployed gateway routes.
+- Non-root application containers and hardened Kubernetes base settings.
+
+See [DEVOPS.md](DEVOPS.md) for deployment, CI, monitoring, smoke-test, and rollback details.
+
+## Repository Layout
+
+```text
+.github/workflows/ci.yml      CI pipeline
+.github/dependabot.yml        Dependency update automation
+docker-compose.yml            Local microservices runtime
+docker/                       DB init, Prometheus, and Grafana config
+k8s/base/                     Local/dev Kubernetes manifests
+scripts/build-microservices.sh
+scripts/smoke-step4.sh
+services/                     Spring Cloud services
+src/                          Optional legacy UI/root Spring Boot app
+```
+
+## Requirements
 
 - Java 21
-- Spring Boot 3
-- Spring Cloud Gateway
-- Spring Cloud Netflix Eureka
-- Spring Cloud Config
-- Spring Security
-- Spring Data JPA
-- Flyway
-- MariaDB
-- Redis
-- RabbitMQ
-- Docker Compose
+- Maven 3.9+
+- Docker and Docker Compose
+- Optional: Kind, Minikube, or Docker Desktop Kubernetes
+- Optional: GitHub secrets `SONAR_TOKEN` and `NVD_API_KEY`
 
-The optional legacy UI uses Thymeleaf, HTML, CSS, and JavaScript.
+## Run Locally With Docker Compose
 
-## Run Locally
-
-The default local setup starts the microservices backend only:
+Create a local environment file:
 
 ```bash
 cp .env.example .env
-# edit .env and set real local credentials
+```
+
+Edit `.env` and replace every placeholder value. Then start the default microservices runtime:
+
+```bash
 docker compose up --build
 ```
 
-Open the gateway at `http://localhost:8082`.
-
-The Spring Cloud runtime exposes:
+Main local endpoints:
 
 - Gateway: `http://localhost:8082`
-- Identity service: `mindarena-identity-service` behind the gateway at `/api/identity`
-- Challenge service: `mindarena-challenge-service` behind the gateway at `/api/challenges`
-- Ranking service: `mindarena-ranking-service` behind the gateway at `/api/leaderboards`
-- Notification service: `mindarena-notification-service` behind the gateway at `/api/notifications`
-- Submission service: `mindarena-submission-service` behind the gateway at `/api/submissions`
-- Chat service: `mindarena-chat-service` behind the gateway at `/api/chat`
-- Config server: `http://localhost:8888`
 - Eureka dashboard: `http://localhost:8761`
+- Config server: `http://localhost:8888`
 - RabbitMQ management: `http://localhost:15672`
 
-The microservices runtime uses separate MariaDB schemas:
-`mindarena_identity`, `mindarena_challenge`, `mindarena_ranking`, `mindarena_notification`,
-`mindarena_submission`, and `mindarena_chat`.
+Gateway routes:
 
-The old Thymeleaf MVC application is kept as an optional legacy/demo UI, outside the default
-microservices runtime:
+- `/api/identity/**`
+- `/api/challenges/**`
+- `/api/leaderboards/**`
+- `/api/notifications/**`
+- `/api/submissions/**`
+- `/api/chat/**`
 
-```bash
-docker compose --profile legacy-ui up --build
-```
-
-When that profile is enabled, the legacy UI is available directly at `http://localhost:8081`.
-If you intentionally want the gateway to proxy the legacy UI, also start the gateway with the
-`legacy-ui` Spring profile.
-
-To backfill service schemas from the monolith schema after the stack is up:
-
-```bash
-docker compose exec -T db sh -c 'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD"' < docker/db/backfill-service-schemas.sql
-```
-
-Prometheus and Grafana are available through the monitoring profile:
+Start monitoring:
 
 ```bash
 docker compose --profile monitoring up --build
 ```
 
-Prometheus runs at `http://localhost:9090`; Grafana runs at `http://localhost:3000`.
+- Prometheus: `http://localhost:9090`
+- Grafana: `http://localhost:3000`
 
-Run microservices route smoke checks:
+Run the optional legacy UI:
+
+```bash
+docker compose --profile legacy-ui up --build
+```
+
+Legacy UI endpoint: `http://localhost:8081`
+
+## Test And Build
+
+Run root app tests and coverage:
+
+```bash
+mvn -B verify
+```
+
+Build and test all microservices:
+
+```bash
+bash scripts/build-microservices.sh
+```
+
+Run smoke checks against a running gateway:
 
 ```bash
 BASE_URL=http://localhost:8082 bash scripts/smoke-step4.sh
 ```
 
-## Run On Kubernetes
+## Kubernetes
 
-Kubernetes manifests are available in `k8s/base` for a local/dev cluster. They deploy the same
-microservices backend with a gateway, discovery server, config server, MariaDB, Redis, RabbitMQ,
-and the extracted domain services.
+The Kubernetes base in `k8s/base` targets local/dev clusters such as Minikube, Kind, or Docker Desktop Kubernetes. It includes:
 
-See `k8s/base/README.md` for image build and deployment commands.
+- Namespace with restricted pod security labels.
+- Runtime ConfigMap and externalized Secret template.
+- MariaDB, Redis, RabbitMQ.
+- Discovery, config server, gateway, and domain services.
+- Prometheus and Grafana.
+- Network policies, resource quota, limit range, HPAs, PDBs, and non-privileged container settings.
 
-To run against a manually managed database, create a MariaDB database:
+Read [k8s/base/README.md](k8s/base/README.md) before applying manifests.
 
-```sql
-CREATE DATABASE mindarena CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
+## Secrets
 
-Set credentials with environment variables:
+Real secrets are not committed. Local Compose uses `.env`; Kubernetes uses `mindarena-secrets`, created at deploy time.
 
-```bash
-export DB_URL=jdbc:mariadb://localhost:3306/mindarena
-export DB_USERNAME=replace-with-db-user
-export DB_PASSWORD=replace-with-db-password
-```
-
-Run:
-
-```bash
-mvn spring-boot:run
-```
-
-Open `http://localhost:8080`.
-
-Demo admin seeding is disabled by default. To create a local demo admin, set:
+Demo admin seeding is disabled by default. To enable it locally:
 
 ```bash
 export DEMO_ADMIN_ENABLED=true
 export DEMO_ADMIN_EMAIL=admin@mindarena.local
 export DEMO_ADMIN_PASSWORD=replace-with-demo-admin-password
 ```
+
+## Release
+
+Current MVP release: `v0.1.0`.
+
+Release and rollback notes are maintained in GitHub Releases and summarized in [DEVOPS.md](DEVOPS.md).

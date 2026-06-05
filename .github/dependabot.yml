@@ -1,0 +1,177 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:00"
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: maven
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:15"
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: maven
+    directory: /services/api-gateway
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:20"
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: maven
+    directory: /services/challenge-service
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:25"
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: maven
+    directory: /services/chat-service
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:30"
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: maven
+    directory: /services/config-server
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:35"
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: maven
+    directory: /services/discovery-server
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:40"
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: maven
+    directory: /services/identity-service
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:45"
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: maven
+    directory: /services/notification-service
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:50"
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: maven
+    directory: /services/ranking-service
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:55"
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: maven
+    directory: /services/submission-service
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: docker-compose
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:05"
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:10"
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: docker
+    directory: /services/api-gateway
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:15"
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: docker
+    directory: /services/challenge-service
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:20"
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: docker
+    directory: /services/chat-service
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:25"
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: docker
+    directory: /services/config-server
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:30"
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: docker
+    directory: /services/discovery-server
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:35"
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: docker
+    directory: /services/identity-service
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:40"
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: docker
+    directory: /services/notification-service
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:45"
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: docker
+    directory: /services/ranking-service
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:50"
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: docker
+    directory: /services/submission-service
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:55"
+    open-pull-requests-limit: 3
