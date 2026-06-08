@@ -131,6 +131,10 @@ Main local endpoints:
 - Config server: `http://localhost:8888`
 - RabbitMQ management: `http://localhost:15672`
 
+Only the gateway is the application API entry point. Eureka, config
+server, RabbitMQ management, Prometheus, and Grafana are local operations
+surfaces for development demos and should not be exposed publicly.
+
 Gateway routes:
 
 - `/api/identity/**`

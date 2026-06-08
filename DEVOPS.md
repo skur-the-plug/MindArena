@@ -138,6 +138,10 @@ Compose monitoring:
 - Prometheus: `http://localhost:9090`
 - Grafana: `http://localhost:3000`
 
+These Compose monitoring endpoints are local development surfaces. A
+production deployment should put monitoring behind private networking,
+SSO, or an operations VPN.
+
 Kubernetes monitoring:
 
 ```bash
