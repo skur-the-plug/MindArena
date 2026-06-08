@@ -114,6 +114,12 @@ cp .env.example .env
 Edit `.env` and replace every placeholder value. Then start the default
 microservices runtime:
 
+Generate local RSA JWT keys with:
+
+```bash
+bash scripts/generate-jwt-keys.sh
+```
+
 ```bash
 docker compose up --build
 ```
@@ -134,6 +140,26 @@ Gateway routes:
 - `/api/submissions/**`
 - `/api/chat/**`
 
+API auth is service-first. Register or login through
+`/api/identity/auth/register` or `/api/identity/auth/login` to receive a
+short-lived RS256 access token and a rotating refresh token. Send
+`Authorization: Bearer <token>` to protected `/api/**` routes. The
+gateway verifies access tokens with the identity public key and forwards
+trusted user context to domain services; protected write APIs no longer
+accept caller-supplied user IDs in request bodies. Gateway service
+discovery routes are disabled; only the explicit `/api/**` routes are
+intended for clients.
+
+The extracted services use separate local schemas. Some service schemas
+contain read/projection copies of user, arena, challenge, or submission
+data. For the MVP demo those projections are populated with
+`docker/db/backfill-service-schemas.sql`; production synchronization
+should be implemented with domain events or service APIs before treating
+the split as independently consistent. Local Compose uses one MariaDB
+application user across those schemas for developer convenience; a
+production deployment should use one least-privilege database account per
+service schema.
+
 Start monitoring:
 
 ```bash
@@ -150,6 +176,10 @@ docker compose --profile legacy-ui up --build
 ```
 
 Legacy UI endpoint: `http://localhost:8081`
+
+The legacy UI keeps its Spring Security form-login session for demos. It
+is isolated behind the `legacy-ui` profile and is not the auth boundary
+for the microservice APIs.
 
 ## Test And Build
 

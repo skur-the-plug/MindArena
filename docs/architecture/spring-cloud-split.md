@@ -36,16 +36,31 @@ optional `legacy-ui` profile for demos that still need the server-rendered scree
 ## Runtime Contract
 
 1. The gateway is the backend entry point for client and automation traffic.
-2. Business APIs are routed through the gateway:
+2. Authentication is owned by `identity`. Clients call `/api/identity/auth/register` or
+   `/api/identity/auth/login` to receive a short-lived RS256 access token and an opaque rotating
+   refresh token. Clients send `Authorization: Bearer <token>` on protected `/api/**` requests
+   and use `/api/identity/auth/refresh` to rotate refresh tokens and obtain new access tokens.
+3. The gateway verifies access tokens with the identity public key and forwards trusted user
+   context to services with `X-User-Id`, `X-User-Email`, and `X-User-Role`. Domain services use
+   those headers for current-user and role checks instead of trusting user IDs from request bodies
+   or query parameters.
+4. Business APIs are routed through the gateway:
    `/api/identity/**`, `/api/challenges/**`, `/api/leaderboards/**`, `/api/notifications/**`,
    `/api/submissions/**`, and `/api/chat/**`.
-3. Each extracted service owns a separate local MariaDB schema in Docker Compose. Flyway creates
+5. Each extracted service owns a separate local MariaDB schema in Docker Compose. Flyway creates
    service tables, and `docker/db/backfill-service-schemas.sql` can copy demo data from the
-   monolith schema.
-4. RabbitMQ domain events are the integration contract for cache invalidation, notifications,
-   XP changes, and future asynchronous evaluation.
-5. The default gateway configuration has no catch-all route to the legacy MVC app. The catch-all
-   route exists only in the gateway `legacy-ui` Spring profile.
+   monolith schema. The local Compose database uses one application user for developer
+   convenience; production should use separate least-privilege database users per service.
+6. Some services keep local read/projection tables for user, arena, challenge, or submission
+   data that they need to answer their own API requests. In this MVP those projections are
+   populated by the demo backfill script. Full production synchronization should be implemented
+   with domain events or service APIs before presenting the split as independently consistent.
+7. RabbitMQ support exists for asynchronous platform events, but the extracted services should be
+   described as a service-first MVP rather than a complete event-driven system.
+8. The default gateway configuration disables service-discovery route exposure and has no catch-all
+   route to the legacy MVC app. Only explicit `/api/**` routes are exposed by the gateway. The
+   catch-all route exists only in the gateway `legacy-ui` Spring profile. The legacy UI keeps its
+   form-login session flow for demos only; it is not the auth boundary for service APIs.
 
 ## Local URLs
 

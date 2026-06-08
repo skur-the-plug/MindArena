@@ -45,16 +45,16 @@ public class ChallengeCatalogService {
     }
 
     @Transactional
-    public Challenge create(ChallengeRequest request) {
+    public Challenge create(ChallengeRequest request, Long creatorId) {
         Challenge challenge = new Challenge();
-        apply(challenge, request);
+        apply(challenge, request, creatorId);
         return challengeRepository.save(challenge);
     }
 
     @Transactional
-    public Challenge update(Long id, ChallengeRequest request) {
+    public Challenge update(Long id, ChallengeRequest request, Long creatorId) {
         Challenge challenge = requireChallenge(id);
-        apply(challenge, request);
+        apply(challenge, request, creatorId);
         return challengeRepository.save(challenge);
     }
 
@@ -65,11 +65,11 @@ public class ChallengeCatalogService {
         return challengeRepository.save(challenge);
     }
 
-    private void apply(Challenge challenge, ChallengeRequest request) {
+    private void apply(Challenge challenge, ChallengeRequest request, Long creatorId) {
         challenge.setArena(arenaRepository.findById(request.arenaId())
                 .orElseThrow(() -> new IllegalArgumentException("Arena not found")));
-        if (request.creatorId() != null) {
-            challenge.setCreator(userRepository.findById(request.creatorId())
+        if (creatorId != null) {
+            challenge.setCreator(userRepository.findById(creatorId)
                     .orElseThrow(() -> new IllegalArgumentException("Creator not found")));
         }
         challenge.setTitle(request.title());

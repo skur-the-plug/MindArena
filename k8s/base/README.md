@@ -26,6 +26,12 @@ docker build -t mindarena/chat-service:0.1.0 services/chat-service
 
 Create the runtime secret from your secret manager before applying workloads:
 
+For local development, generate RSA JWT key values with:
+
+```bash
+bash scripts/generate-jwt-keys.sh
+```
+
 ```bash
 kubectl apply -f k8s/base/namespace.yaml
 kubectl create secret generic mindarena-secrets \
@@ -36,7 +42,9 @@ kubectl create secret generic mindarena-secrets \
   --from-literal=rabbitmq-username="$RABBITMQ_USERNAME" \
   --from-literal=rabbitmq-password="$RABBITMQ_PASSWORD" \
   --from-literal=grafana-admin-user="$GRAFANA_ADMIN_USER" \
-  --from-literal=grafana-admin-password="$GRAFANA_ADMIN_PASSWORD"
+  --from-literal=grafana-admin-password="$GRAFANA_ADMIN_PASSWORD" \
+  --from-literal=jwt-private-key="$JWT_PRIVATE_KEY" \
+  --from-literal=jwt-public-key="$JWT_PUBLIC_KEY"
 ```
 
 ```bash
@@ -71,6 +79,8 @@ kubectl port-forward -n mindarena service/grafana 3000:3000
 ## Notes
 
 - The gateway is exposed as a `NodePort` on `30082` and can also be accessed by port-forwarding.
+- Network policies deny ingress by default. Client traffic enters through the gateway; domain
+  services accept API traffic from the gateway and metrics traffic from Prometheus.
 - MariaDB, Redis, and RabbitMQ use PVCs for local persistence.
 - Secrets are not committed. `secrets.example.yaml` is a template only.
 - The base includes restricted Pod Security labels, non-privileged container settings, network policies, resource quotas, disruption budgets, HPAs, and Prometheus/Grafana monitoring.

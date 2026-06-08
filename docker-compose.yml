@@ -60,6 +60,7 @@ services:
     build: ./services/api-gateway
     environment:
       EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka/
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY:?set JWT_PUBLIC_KEY}
     ports:
       - "8082:8080"
     depends_on:
@@ -92,6 +93,10 @@ services:
       DB_URL: jdbc:mariadb://db:3306/mindarena_identity
       DB_USERNAME: ${MARIADB_USER:?set MARIADB_USER}
       DB_PASSWORD: ${MARIADB_PASSWORD:?set MARIADB_PASSWORD}
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY:?set JWT_PRIVATE_KEY}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY:?set JWT_PUBLIC_KEY}
+      JWT_EXPIRATION_SECONDS: ${JWT_EXPIRATION_SECONDS:-900}
+      JWT_REFRESH_EXPIRATION_DAYS: ${JWT_REFRESH_EXPIRATION_DAYS:-30}
     depends_on:
       db:
         condition: service_healthy

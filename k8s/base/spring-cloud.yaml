@@ -150,6 +150,11 @@ spec:
                 configMapKeyRef:
                   name: mindarena-config
                   key: eureka-default-zone
+            - name: JWT_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mindarena-secrets
+                  key: jwt-public-key
           securityContext:
             runAsNonRoot: true
             allowPrivilegeEscalation: false

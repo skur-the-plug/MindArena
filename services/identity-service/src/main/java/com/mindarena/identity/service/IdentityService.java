@@ -24,6 +24,15 @@ public class IdentityService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
 
+    public User authenticate(String email, String password) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new IllegalArgumentException("Invalid email or password");
+        }
+        return user;
+    }
+
     @Transactional
     public User register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {

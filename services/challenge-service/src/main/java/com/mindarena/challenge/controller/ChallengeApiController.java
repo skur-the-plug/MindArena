@@ -5,15 +5,19 @@ import com.mindarena.challenge.dto.ChallengePayload;
 import com.mindarena.challenge.dto.ChallengeRequest;
 import com.mindarena.challenge.repository.ArenaRepository;
 import com.mindarena.challenge.service.ChallengeCatalogService;
+import jakarta.validation.Valid;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/challenges")
@@ -50,17 +54,35 @@ public class ChallengeApiController {
     }
 
     @PostMapping
-    public ChallengePayload create(@RequestBody ChallengeRequest request) {
-        return ChallengePayload.from(challengeService.create(request));
+    public ChallengePayload create(
+            @Valid @RequestBody ChallengeRequest request,
+            @RequestHeader("X-User-Id") Long currentUserId,
+            @RequestHeader("X-User-Role") String role
+    ) {
+        requireAdmin(role);
+        return ChallengePayload.from(challengeService.create(request, currentUserId));
     }
 
     @PutMapping("/{id}")
-    public ChallengePayload update(@PathVariable Long id, @RequestBody ChallengeRequest request) {
-        return ChallengePayload.from(challengeService.update(id, request));
+    public ChallengePayload update(
+            @PathVariable Long id,
+            @Valid @RequestBody ChallengeRequest request,
+            @RequestHeader("X-User-Id") Long currentUserId,
+            @RequestHeader("X-User-Role") String role
+    ) {
+        requireAdmin(role);
+        return ChallengePayload.from(challengeService.update(id, request, currentUserId));
     }
 
     @PostMapping("/{id}/toggle")
-    public ChallengePayload toggle(@PathVariable Long id) {
+    public ChallengePayload toggle(@PathVariable Long id, @RequestHeader("X-User-Role") String role) {
+        requireAdmin(role);
         return ChallengePayload.from(challengeService.toggle(id));
+    }
+
+    private void requireAdmin(String role) {
+        if (!"ADMIN".equals(role)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admin role required");
+        }
     }
 }

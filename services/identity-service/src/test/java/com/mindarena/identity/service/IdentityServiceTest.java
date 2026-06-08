@@ -18,6 +18,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Optional;
+
 @ExtendWith(MockitoExtension.class)
 class IdentityServiceTest {
 
@@ -69,5 +71,31 @@ class IdentityServiceTest {
                 .hasMessage("Email already exists");
         verify(passwordEncoder, never()).encode(any());
         verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void authenticateReturnsUserWhenPasswordMatches() {
+        User user = new User();
+        user.setEmail("service@example.com");
+        user.setPassword("encoded-password");
+        when(userRepository.findByEmail("service@example.com")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("plain-password", "encoded-password")).thenReturn(true);
+
+        User authenticated = identityService.authenticate("service@example.com", "plain-password");
+
+        assertThat(authenticated).isSameAs(user);
+    }
+
+    @Test
+    void authenticateRejectsBadPassword() {
+        User user = new User();
+        user.setEmail("service@example.com");
+        user.setPassword("encoded-password");
+        when(userRepository.findByEmail("service@example.com")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("wrong-password", "encoded-password")).thenReturn(false);
+
+        assertThatThrownBy(() -> identityService.authenticate("service@example.com", "wrong-password"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Invalid email or password");
     }
 }

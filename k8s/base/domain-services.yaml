@@ -44,6 +44,26 @@ spec:
                 secretKeyRef:
                   name: mindarena-secrets
                   key: db-password
+            - name: JWT_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mindarena-secrets
+                  key: jwt-private-key
+            - name: JWT_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mindarena-secrets
+                  key: jwt-public-key
+            - name: JWT_EXPIRATION_SECONDS
+              valueFrom:
+                configMapKeyRef:
+                  name: mindarena-config
+                  key: jwt-expiration-seconds
+            - name: JWT_REFRESH_EXPIRATION_DAYS
+              valueFrom:
+                configMapKeyRef:
+                  name: mindarena-config
+                  key: jwt-refresh-expiration-days
           securityContext:
             runAsNonRoot: true
             allowPrivilegeEscalation: false

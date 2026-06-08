@@ -45,20 +45,24 @@ public class SubmissionApiService {
     }
 
     @Transactional
-    public Submission submit(SubmissionRequest request) {
+    public Submission submit(SubmissionRequest request, Long authorId) {
+        if ((request.content() == null || request.content().isBlank())
+                && (request.contentJson() == null || request.contentJson().isBlank())) {
+            throw new IllegalArgumentException("Submission content is required");
+        }
         Submission submission = new Submission();
         submission.setChallenge(challengeRepository.findById(request.challengeId()).orElseThrow(() -> new IllegalArgumentException("Challenge not found")));
-        submission.setAuthor(userRepository.findById(request.authorId()).orElseThrow(() -> new IllegalArgumentException("User not found")));
+        submission.setAuthor(userRepository.findById(authorId).orElseThrow(() -> new IllegalArgumentException("User not found")));
         submission.setContent(request.content());
         submission.setContentJson(request.contentJson());
         return submissionRepository.save(submission);
     }
 
     @Transactional
-    public SubmissionComment comment(Long submissionId, CommentRequest request) {
+    public SubmissionComment comment(Long submissionId, CommentRequest request, Long authorId) {
         SubmissionComment comment = new SubmissionComment();
         comment.setSubmission(requireSubmission(submissionId));
-        comment.setAuthor(userRepository.findById(request.authorId()).orElseThrow(() -> new IllegalArgumentException("User not found")));
+        comment.setAuthor(userRepository.findById(authorId).orElseThrow(() -> new IllegalArgumentException("User not found")));
         comment.setContent(request.content());
         return commentRepository.save(comment);
     }

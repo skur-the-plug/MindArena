@@ -37,10 +37,10 @@ public class ChatApiService {
     }
 
     @Transactional
-    public ChatMessage post(PostMessageRequest request) {
+    public ChatMessage post(PostMessageRequest request, Long authorId) {
         ChatMessage message = new ChatMessage();
         message.setRoomType(ChatRoomType.valueOf(request.roomType()));
-        message.setAuthor(userRepository.findById(request.authorId()).orElseThrow(() -> new IllegalArgumentException("User not found")));
+        message.setAuthor(userRepository.findById(authorId).orElseThrow(() -> new IllegalArgumentException("User not found")));
         if (request.arenaId() != null) {
             message.setArena(arenaRepository.findById(request.arenaId()).orElseThrow(() -> new IllegalArgumentException("Arena not found")));
         }
