@@ -6,6 +6,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import java.util.Map;
 import java.security.PublicKey;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,6 +14,7 @@ public class JwtService {
 
     private final PublicKey publicKey;
 
+    @Autowired
     public JwtService(RsaKeyService keyService) {
         this.publicKey = keyService.publicKey();
     }

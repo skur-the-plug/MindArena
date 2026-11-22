@@ -181,6 +181,8 @@ services:
       DEMO_ADMIN_ENABLED: ${DEMO_ADMIN_ENABLED:-false}
       DEMO_ADMIN_EMAIL: ${DEMO_ADMIN_EMAIL:-admin@mindarena.local}
       DEMO_ADMIN_PASSWORD: ${DEMO_ADMIN_PASSWORD:-}
+      DEMO_DATA_ENABLED: ${DEMO_DATA_ENABLED:-false}
+      DEMO_USER_PASSWORD: ${DEMO_USER_PASSWORD:-}
     ports:
       - "8081:8080"
     volumes:

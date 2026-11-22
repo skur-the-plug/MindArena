@@ -7,11 +7,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.mindarena.domain.challenges.repository.ArenaRepository;
+import com.mindarena.domain.challenges.repository.ArenaMembershipRepository;
 import com.mindarena.domain.challenges.repository.ChallengeRepository;
 import com.mindarena.domain.challenges.repository.PlatformNewsRepository;
 import com.mindarena.domain.identity.model.Role;
 import com.mindarena.domain.identity.model.User;
 import com.mindarena.domain.identity.repository.UserRepository;
+import com.mindarena.domain.submissions.repository.SubmissionCommentRepository;
+import com.mindarena.domain.submissions.repository.SubmissionRepository;
+import com.mindarena.domain.submissions.repository.VoteRepository;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -28,6 +32,9 @@ class DataInitializerTest {
     private ArenaRepository arenaRepository;
 
     @Mock
+    private ArenaMembershipRepository arenaMembershipRepository;
+
+    @Mock
     private ChallengeRepository challengeRepository;
 
     @Mock
@@ -37,28 +44,35 @@ class DataInitializerTest {
     private UserRepository userRepository;
 
     @Mock
+    private SubmissionRepository submissionRepository;
+
+    @Mock
+    private SubmissionCommentRepository submissionCommentRepository;
+
+    @Mock
+    private VoteRepository voteRepository;
+
+    @Mock
     private PasswordEncoder passwordEncoder;
 
     @Test
     void runDoesNotCreateDemoAdminWhenDisabled() {
-        DataInitializer initializer = initializer(false, "ignored");
-        when(challengeRepository.count()).thenReturn(0L);
+        DataInitializer initializer = initializer(false, "ignored", false, "");
+        when(userRepository.findByEmail("admin@mindarena.local")).thenReturn(Optional.empty());
         when(challengeRepository.findAll()).thenReturn(List.of());
         when(platformNewsRepository.count()).thenReturn(1L);
 
         initializer.run();
 
         verify(userRepository, never()).existsByEmail("admin@mindarena.local");
-        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
     void runCreatesDemoAdminWithConfiguredPasswordWhenEnabled() {
-        DataInitializer initializer = initializer(true, "external-password");
+        DataInitializer initializer = initializer(true, "external-password", false, "");
         when(userRepository.existsByEmail("admin@mindarena.local")).thenReturn(false);
         when(userRepository.findByEmail("admin@mindarena.local")).thenReturn(Optional.empty());
         when(passwordEncoder.encode("external-password")).thenReturn("encoded-external-password");
-        when(challengeRepository.count()).thenReturn(0L);
         when(challengeRepository.findAll()).thenReturn(List.of());
         when(platformNewsRepository.count()).thenReturn(1L);
 
@@ -72,16 +86,51 @@ class DataInitializerTest {
         assertThat(saved.getRole()).isEqualTo(Role.ADMIN);
     }
 
-    private DataInitializer initializer(boolean demoAdminEnabled, String demoAdminPassword) {
+    @Test
+    void runDoesNotCreateDemoUsersWhenDemoDataIsDisabled() {
+        DataInitializer initializer = initializer(false, "", false, "");
+        when(userRepository.findByEmail("admin@mindarena.local")).thenReturn(Optional.empty());
+        when(challengeRepository.findAll()).thenReturn(List.of());
+        when(platformNewsRepository.count()).thenReturn(1L);
+
+        initializer.run();
+
+        verify(passwordEncoder, never()).encode("local-demo-password");
+    }
+
+    @Test
+    void runRequiresExternalPasswordWhenDemoDataIsEnabled() {
+        DataInitializer initializer = initializer(false, "", true, "");
+        when(userRepository.findByEmail("admin@mindarena.local")).thenReturn(Optional.empty());
+        when(challengeRepository.findAll()).thenReturn(List.of());
+        when(platformNewsRepository.count()).thenReturn(1L);
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(initializer::run)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("demo-data.user-password");
+    }
+
+    private DataInitializer initializer(
+            boolean demoAdminEnabled,
+            String demoAdminPassword,
+            boolean demoDataEnabled,
+            String demoUserPassword
+    ) {
         return new DataInitializer(
                 arenaRepository,
+                arenaMembershipRepository,
                 challengeRepository,
                 platformNewsRepository,
                 userRepository,
+                submissionRepository,
+                submissionCommentRepository,
+                voteRepository,
                 passwordEncoder,
                 demoAdminEnabled,
                 "admin@mindarena.local",
-                demoAdminPassword
+                demoAdminPassword,
+                demoDataEnabled,
+                demoUserPassword
         );
     }
 }

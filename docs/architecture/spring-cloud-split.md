@@ -61,6 +61,10 @@ optional `legacy-ui` profile for demos that still need the server-rendered scree
    route to the legacy MVC app. Only explicit `/api/**` routes are exposed by the gateway. The
    catch-all route exists only in the gateway `legacy-ui` Spring profile. The legacy UI keeps its
    form-login session flow for demos only; it is not the auth boundary for service APIs.
+9. This baseline uses gateway-centered user authentication. Extracted domain services do not yet
+   authenticate one another, and they currently trust the identity headers inserted by the gateway.
+   There is also no synchronous three-domain-service request chain in the baseline. Those capabilities
+   are deliberately outside this document's implemented scope and must not be presented as complete.
 
 ## Local URLs
 

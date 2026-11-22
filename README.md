@@ -114,10 +114,11 @@ cp .env.example .env
 Edit `.env` and replace every placeholder value. Then start the default
 microservices runtime:
 
-Generate local RSA JWT keys with:
+Generate local RSA JWT keys and write them directly to the ignored `.env`
+file without printing the private key:
 
 ```bash
-bash scripts/generate-jwt-keys.sh
+bash scripts/generate-jwt-keys.sh --write-env .env
 ```
 
 ```bash
@@ -144,7 +145,7 @@ Gateway routes:
 - `/api/submissions/**`
 - `/api/chat/**`
 
-API auth is service-first. Register or login through
+API user authentication is gateway-centered. Register or login through
 `/api/identity/auth/register` or `/api/identity/auth/login` to receive a
 short-lived RS256 access token and a rotating refresh token. Send
 `Authorization: Bearer <token>` to protected `/api/**` routes. The
@@ -153,6 +154,12 @@ trusted user context to domain services; protected write APIs no longer
 accept caller-supplied user IDs in request bodies. Gateway service
 discovery routes are disabled; only the explicit `/api/**` routes are
 intended for clients.
+
+This clean baseline does not yet implement service-to-service identity or
+authorization. Domain services trust identity headers inserted by the gateway,
+and no current client request requires three domain services to collaborate.
+Interservice authentication is intentionally reserved for the secure-systems
+project branch rather than being claimed as an existing platform capability.
 
 The extracted services use separate local schemas. Some service schemas
 contain read/projection copies of user, arena, challenge, or submission
@@ -233,6 +240,18 @@ export DEMO_ADMIN_EMAIL=admin@mindarena.local
 export DEMO_ADMIN_PASSWORD=replace-with-demo-admin-password
 ```
 
+The optional legacy UI can also seed representative users and activity for
+local demonstrations. It is disabled by default and requires an explicit
+local password:
+
+```bash
+export DEMO_DATA_ENABLED=true
+export DEMO_USER_PASSWORD=replace-with-local-demo-password
+```
+
+See [docs/demo-credentials.md](docs/demo-credentials.md) for the seeded local
+accounts. Do not reuse demo credentials outside local development.
+
 ## Release
 
 Current MVP release: `v0.1.0`.
@@ -258,4 +277,5 @@ Production hardening still required:
 - Ingress, TLS, and production DNS.
 - Centralized logs and distributed tracing.
 - Signed images and admission policies.
+- Service-to-service authentication and least-privilege authorization.
 - Stronger test coverage and release promotion gates.
