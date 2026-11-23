@@ -74,7 +74,7 @@ Runtime service-security smoke checks passed.
 ## 5. What to inspect
 
 - `docs/security/service-to-service-security.md`: design and threat model.
-- `docs/report/rapport-mindarena.html`: detailed academic report source.
+- `docs/report/ensias/rapport-mindarena.tex`: detailed ENSIAS LaTeX report source.
 - `docs/report/VALIDATION_EVIDENCE.md`: exact tests and result ledger.
 - `services/identity-service/.../security/`: issuer-side client registry and policy.
 - `services/challenge-service/.../security/`: Challenge resource-server policy.

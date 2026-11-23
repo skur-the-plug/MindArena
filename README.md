@@ -24,9 +24,10 @@ decision and threat model are in
 [service-to-service-security.md](docs/security/service-to-service-security.md).
 
 For a short evaluator path, use
-[EVALUATOR_QUICKSTART.md](docs/security/EVALUATOR_QUICKSTART.md). The print-ready
-French report and exact validation ledger are in
-[`docs/report/`](docs/report/).
+[EVALUATOR_QUICKSTART.md](docs/security/EVALUATOR_QUICKSTART.md). The editable
+ENSIAS LaTeX report is
+[rapport-mindarena.tex](docs/report/ensias/rapport-mindarena.tex), and the exact
+validation ledger is in [`docs/report/`](docs/report/).
 
 ## Architecture
 
