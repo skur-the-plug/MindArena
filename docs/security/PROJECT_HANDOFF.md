@@ -35,7 +35,7 @@ Our selected solution is:
 | --- | --- | --- |
 | Clean pre-project baseline | Complete | Commit/tag `mindarena-clean-baseline` |
 | Three-service security implementation | Complete | Automated service-security tests and fresh Docker runtime smoke test |
-| Academic report and final delivery package | Next | See “Remaining work” below |
+| Academic report and final delivery package | In progress | Print-ready report source, evidence ledger, evaluator guide and archive tooling added |
 
 The normal application still uses gateway-centered user authentication for
 several legacy flows. Do not claim that every MindArena service call is secured.
@@ -175,15 +175,12 @@ for negative security probes. Normal Compose does not publish those ports.
 Do not redesign the implementation unless a failing test proves it necessary.
 The next stage is evidence and presentation:
 
-1. Write the academic report: context, mechanism comparison, choice criteria,
-   threat model, implementation, policy table, tests, limitations, and future work.
-2. Add diagrams and sanitized screenshots/log excerpts from the runtime script.
-3. Record exact positive and negative HTTP results in a test-evidence table.
-4. Prepare an IntelliJ-importable archive without `.env`, build outputs, database
-   volumes, IDE metadata, or secrets.
-5. Rehearse the demo and likely questions: why JWT instead of mTLS, why RS256,
+1. Replace both team-name placeholders in `docs/report/rapport-mindarena.html`.
+2. Export and visually inspect the final PDF; optionally add sanitized screenshots.
+3. Import the generated source archive in IntelliJ with Java 21 as a human check.
+4. Rehearse the demo and likely questions: why JWT instead of mTLS, why RS256,
    rotation/revocation, replay, Identity outage, audience vs scope, and default deny.
-6. Run secret scanning and all commands above on the final commit.
+5. Upload the PDF and source archive to Moodle, reopen them, and retain confirmation.
 
 ## Collaboration rules
 

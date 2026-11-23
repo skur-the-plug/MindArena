@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MindArena — Authentification et autorisation interservices</title>
+  <style>
+    :root { --ink:#132238; --muted:#53657a; --blue:#2457d6; --cyan:#14a5b8; --pale:#edf4ff; --line:#d7e0eb; --good:#087f5b; --warn:#b45309; }
+    * { box-sizing:border-box; }
+    html { font-family:Inter,Segoe UI,Arial,sans-serif; color:var(--ink); font-size:9pt; line-height:1.34; }
+    body { margin:0; background:#e9eef5; }
+    main { width:210mm; margin:0 auto; background:white; box-shadow:0 8px 32px #50607835; }
+    section { padding:14mm 17mm 12mm; height:297mm; overflow:hidden; page-break-after:always; position:relative; }
+    section:last-child { page-break-after:auto; }
+    .cover { color:white; background:linear-gradient(145deg,#0d1d35 0%,#173a72 58%,#0f8795 100%); display:flex; flex-direction:column; justify-content:space-between; }
+    .eyebrow { text-transform:uppercase; letter-spacing:.16em; font-weight:700; font-size:9pt; color:#88e5ee; }
+    h1 { font-size:31pt; line-height:1.08; margin:8mm 0 5mm; max-width:155mm; }
+    h2 { font-size:20pt; line-height:1.15; margin:0 0 6mm; color:#173a72; }
+    h3 { font-size:12.5pt; margin:5mm 0 2mm; color:#1d4a8c; }
+    h4 { font-size:10pt; margin:4mm 0 1.5mm; }
+    p { margin:0 0 2.5mm; }
+    ul,ol { margin:1.5mm 0 3mm; padding-left:6mm; }
+    li { margin:.8mm 0; }
+    .cover .meta { border-top:1px solid #ffffff55; padding-top:7mm; display:grid; grid-template-columns:1fr 1fr; gap:8mm; }
+    .cover .meta strong { display:block; color:#88e5ee; font-size:8.5pt; text-transform:uppercase; letter-spacing:.1em; }
+    .cover .badge { display:inline-block; padding:2.5mm 4mm; border:1px solid #88e5ee; border-radius:99px; font-weight:700; }
+    .lead { font-size:11.5pt; line-height:1.45; color:#30445d; }
+    .callout { border-left:4px solid var(--blue); background:var(--pale); padding:3mm 4mm; margin:3.5mm 0; border-radius:0 4px 4px 0; }
+    .success { border-left-color:var(--good); background:#eaf8f3; }
+    .warning { border-left-color:var(--warn); background:#fff7e8; }
+    .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:3.5mm; }
+    .card { border:1px solid var(--line); border-radius:6px; padding:3mm; break-inside:avoid; }
+    .card strong { color:#173a72; }
+    table { width:100%; border-collapse:collapse; margin:3mm 0 4mm; font-size:8pt; break-inside:avoid; }
+    th { background:#173a72; color:white; text-align:left; padding:2mm; }
+    td { border:1px solid var(--line); padding:1.8mm; vertical-align:top; }
+    tbody tr:nth-child(even) { background:#f7f9fc; }
+    code { font-family:"JetBrains Mono",Consolas,monospace; background:#eef2f7; padding:.2mm 1mm; border-radius:3px; font-size:9pt; }
+    pre { white-space:pre-wrap; background:#101b2c; color:#e8f1ff; padding:3mm; border-radius:5px; font-size:7.5pt; line-height:1.34; break-inside:avoid; }
+    .flow { display:grid; grid-template-columns:1fr 10mm 1fr 10mm 1fr; align-items:center; margin:4mm 0; }
+    .node { border:2px solid #2457d6; background:#f5f8ff; border-radius:8px; padding:3.5mm 2mm; text-align:center; font-weight:700; }
+    .arrow { text-align:center; color:var(--cyan); font-size:20pt; font-weight:700; }
+    .policy { display:grid; grid-template-columns:1fr 1fr; gap:4mm; margin:3.5mm 0; }
+    .policy .card { border-top:4px solid var(--cyan); }
+    .small { color:var(--muted); font-size:8pt; }
+    .status { display:inline-block; border-radius:99px; padding:1mm 3mm; background:#dff5eb; color:#087f5b; font-weight:700; font-size:8pt; }
+    .footer { position:absolute; left:17mm; right:17mm; bottom:6mm; border-top:1px solid var(--line); padding-top:2mm; display:flex; justify-content:space-between; color:#718096; font-size:7.5pt; }
+    .toc { columns:2; column-gap:12mm; }
+    .toc li { break-inside:avoid; margin:2mm 0; }
+    .check { color:var(--good); font-weight:800; }
+    @page { size:A4; margin:0; }
+    @media print { body { background:white; } main { box-shadow:none; margin:0; } }
+  </style>
+</head>
+<body><main>
+  <section class="cover">
+    <div>
+      <div class="eyebrow">Projet Ingénierie des Systèmes Sécurisés · A.U. 2026/2027</div>
+      <h1>Authentification et autorisation interservices dans MindArena</h1>
+      <p style="font-size:16pt;max-width:145mm;color:#dbeafe">JWT RS256 à courte durée de vie, identité de service et autorisation à moindre privilège pour une collaboration tri-microservices.</p>
+    </div>
+    <div>
+      <p><span class="badge">Rapport technique et expérimental</span></p>
+      <div class="meta">
+        <div><strong>Binôme</strong>[Nom et prénom 1]<br>[Nom et prénom 2]</div>
+        <div><strong>Date de remise</strong>24 novembre 2026<br>Avant minuit</div>
+        <div><strong>Application</strong>MindArena<br>Java 21 · Spring Boot 3</div>
+        <div><strong>Version validée</strong><code style="color:#132238">secure-systems-gate-2</code><br>Commit <code style="color:#132238">0e54055</code></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Résumé exécutif</h2>
+    <p class="lead">Ce projet ajoute à MindArena une chaîne Zero Trust vérifiable pour une requête métier faisant collaborer trois microservices. Submission ne peut enregistrer une réponse qu'après vérification de l'utilisateur par Identity et validation de la politique du challenge par Challenge.</p>
+    <div class="callout success"><strong>Résultat.</strong> L'authentification interservices repose sur des JWT RS256 de 120 secondes. L'autorisation combine une identité de service enregistrée et deux permissions fines. Tous les cas positifs et négatifs sont automatisés et le scénario complet a été validé sur une pile Docker neuve.</div>
+    <h3>Objectifs couverts</h3>
+    <div class="grid2">
+      <div class="card"><strong>Authentifier chaque service</strong><p>Une signature valide ne suffit pas : l'émetteur, le type de jeton, le sujet, l'audience et l'expiration sont vérifiés.</p></div>
+      <div class="card"><strong>Autoriser l'opération exacte</strong><p>Chaque endpoint interne exige le bon appelant, la bonne audience et le scope minimal.</p></div>
+      <div class="card"><strong>Collaborer à trois services</strong><p>Identity et Challenge prennent des décisions indépendantes avant l'écriture par Submission.</p></div>
+      <div class="card"><strong>Prouver les propriétés</strong><p>Tests unitaires, matrice d'attaques HTTP, absence d'écriture partielle et corrélation de logs.</p></div>
+    </div>
+    <h3>Portée honnête</h3>
+    <p>La contribution évaluée sécurise le chemin d'écriture <code>POST /api/submissions</code>. Elle ne prétend pas convertir rétroactivement tous les flux historiques de MindArena. Cette limite garde l'expérience reproductible et permet d'étudier en profondeur une frontière de confiance réelle.</p>
+    <h3>Plan du rapport</h3>
+    <ol class="toc"><li>Contexte et problématique</li><li>Étude des mécanismes</li><li>Choix d'architecture</li><li>Fonctionnement détaillé</li><li>Installation/configuration</li><li>Validation expérimentale</li><li>Analyse de sécurité</li><li>Limites et perspectives</li></ol>
+    <div class="footer"><span>MindArena · Rapport interservices</span><span>2</span></div>
+  </section>
+
+  <section>
+    <h2>1. Contexte et problématique</h2>
+    <h3>1.1 Authentification, autorisation et Zero Trust</h3>
+    <p>L'authentification répond à « qui appelle ? », tandis que l'autorisation répond à « que peut faire cet appelant ? ». Dans un système distribué, une adresse réseau interne ne constitue pas une identité. Le principe Zero Trust impose donc de ne jamais accorder une autorité implicite en fonction du réseau et de vérifier chaque requête.</p>
+    <h3>1.2 Application support : MindArena</h3>
+    <p>MindArena est une plateforme d'apprentissage compétitif organisée en microservices Spring : identités, challenges, soumissions, classements, notifications et chat. Le client entre par une API Gateway; Eureka assure la découverte; MariaDB, Redis et RabbitMQ fournissent les données et la messagerie.</p>
+    <h3>1.3 Limite du socle initial</h3>
+    <div class="callout warning">Le socle initial savait authentifier l'utilisateur à la Gateway, mais certains services aval pouvaient encore dépendre d'en-têtes <code>X-User-*</code>. Un appel direct pouvait alors contourner la confiance placée dans la Gateway. De plus, les appels de service à service ne portaient pas une identité et des droits propres au service.</div>
+    <h3>1.4 Requête métier retenue</h3>
+    <ol><li>Le client envoie une soumission accompagnée de son JWT utilisateur.</li><li>Submission valide de nouveau ce JWT et en extrait l'identité signée.</li><li>Submission demande à Identity si l'utilisateur est toujours éligible.</li><li>Submission demande à Challenge si le challenge existe, est actif et non expiré.</li><li>L'écriture n'a lieu que si les deux décisions sont positives.</li></ol>
+    <div class="flow"><div class="node">Identity<br><span class="small">vérifier utilisateur</span></div><div class="arrow">←</div><div class="node">Submission<br><span class="small">orchestrer / écrire</span></div><div class="arrow">→</div><div class="node">Challenge<br><span class="small">valider politique</span></div></div>
+    <h3>1.5 Exigences de sécurité</h3>
+    <ul><li>preuve cryptographique de l'identité de Submission;</li><li>droits différents selon le service cible;</li><li>rejet par défaut de toute combinaison inconnue;</li><li>confusion impossible entre jetons utilisateur et service;</li><li>aucune donnée partielle lors d'un refus ou d'une panne;</li><li>traces corrélées sans journalisation de secrets.</li></ul>
+    <div class="footer"><span>Contexte et problématique</span><span>3</span></div>
+  </section>
+
+  <section>
+    <h2>2. Étude des mécanismes existants</h2>
+    <h3>2.1 Authentification interservices</h3>
+    <table><thead><tr><th>Mécanisme</th><th>Avantages</th><th>Inconvénients</th><th>Adéquation</th></tr></thead><tbody>
+      <tr><td><strong>mTLS</strong></td><td>Authentification mutuelle au transport; chiffrement; identité liée au certificat.</td><td>PKI, rotation et diagnostic plus lourds; exprime mal l'opération métier sans couche supplémentaire.</td><td>Excellent complément de production, surtout avec un service mesh.</td></tr>
+      <tr><td><strong>JWT signé</strong></td><td>Validation locale; claims visibles; audience et permissions explicites; faible couplage à l'émetteur.</td><td>Révocation non instantanée; vol rejouable jusqu'à expiration; rotation de clés à organiser.</td><td><strong>Choisi</strong> pour rendre les propriétés directement observables et testables.</td></tr>
+      <tr><td><strong>OAuth 2.0 / OIDC</strong></td><td>Protocoles standards; client credentials; écosystème, découverte et rotation riches.</td><td>Serveur d'autorisation et configuration plus complexes; OIDC cible principalement l'identité utilisateur.</td><td>Évolution naturelle vers Keycloak, Spring Authorization Server ou un fournisseur managé.</td></tr>
+    </tbody></table>
+    <h3>2.2 Modèles d'autorisation</h3>
+    <table><thead><tr><th>Modèle</th><th>Décision</th><th>Force</th><th>Limite dans ce scénario</th></tr></thead><tbody>
+      <tr><td>RBAC</td><td>Rôle de l'appelant</td><td>Simple, auditable, stable.</td><td>Un rôle seul peut devenir trop large.</td></tr>
+      <tr><td>ABAC</td><td>Attributs service/ressource/contexte</td><td>Très fin et dynamique.</td><td>Politiques et tests plus complexes pour deux opérations fixes.</td></tr>
+      <tr><td>PBAC</td><td>Politique centralisée ou distribuée</td><td>Cohérence à grande échelle.</td><td>Moteur de politique disproportionné pour ce périmètre.</td></tr>
+      <tr><td>ReBAC</td><td>Relations entre entités</td><td>Adapté aux graphes de partage.</td><td>Peu utile pour une relation appelant-cible statique.</td></tr>
+      <tr><td><strong>Identité + scopes</strong></td><td>Service enregistré et permission exacte</td><td>Lisible, moindre privilège, facile à tester.</td><td>Nécessite une gouvernance quand les scopes se multiplient.</td></tr>
+    </tbody></table>
+    <h3>2.3 Critères de décision</h3>
+    <p>Le choix retient la sécurité, la lisibilité pédagogique, la performance, l'exploitabilité locale, la capacité d'audit et la complexité adaptée à un binôme. RS256 évite de distribuer un secret de signature à tous les consommateurs : Identity conserve la clé privée, les autres services ne reçoivent que la clé publique.</p>
+    <div class="callout"><strong>Décision.</strong> JWT RS256 à courte durée de vie pour l'authentification; identité de service enregistrée + scopes pour l'autorisation. mTLS est considéré comme complément de transport, non comme substitut aux droits applicatifs.</div>
+    <div class="footer"><span>Étude comparative</span><span>4</span></div>
+  </section>
+
+  <section>
+    <h2>3. Architecture de la solution</h2>
+    <h3>3.1 Placement des responsabilités</h3>
+    <table><thead><tr><th>Composant</th><th>Responsabilité de sécurité</th><th>Secret détenu</th></tr></thead><tbody>
+      <tr><td>Identity</td><td>Enregistre le client, authentifie ses credentials, émet les JWT de service, protège la vérification utilisateur.</td><td>Clé privée RSA; hash SHA-256 du secret client.</td></tr>
+      <tr><td>Submission</td><td>Valide le JWT utilisateur; obtient et met en cache un jeton par audience; orchestre les deux décisions avant écriture.</td><td>Secret client brut; clé publique RSA.</td></tr>
+      <tr><td>Challenge</td><td>Valide le JWT de service et la politique d'éligibilité du challenge.</td><td>Clé publique RSA uniquement.</td></tr>
+      <tr><td>Gateway</td><td>Point d'entrée; valide le client; génère/nettoie l'identifiant de corrélation; ne route aucun endpoint interne.</td><td>Clé publique RSA uniquement.</td></tr>
+    </tbody></table>
+    <h3>3.2 Contrat des jetons de service</h3>
+    <pre>{
+  "iss": "mindarena-identity-service",
+  "sub": "mindarena-submission-service",
+  "aud": ["mindarena-challenge-service"],
+  "scope": "challenge:submission:validate",
+  "token_use": "service",
+  "iat": 1795450000,
+  "exp": 1795450120
+}</pre>
+    <p>La durée par défaut est de 120 secondes. Submission conserve séparément le jeton de chaque audience et arrête de le réutiliser 15 secondes avant son expiration.</p>
+    <h3>3.3 Politique d'autorisation</h3>
+    <div class="policy">
+      <div class="card"><strong>Submission → Identity</strong><p>Audience : <code>mindarena-identity-service</code></p><p>Scope : <code>identity:user:verify</code></p></div>
+      <div class="card"><strong>Submission → Challenge</strong><p>Audience : <code>mindarena-challenge-service</code></p><p>Scope : <code>challenge:submission:validate</code></p></div>
+    </div>
+    <p>Toute autre identité, audience, permission ou route est refusée. La validation combine Spring Security Resource Server et un <code>AuthorizationManager</code> propre à chaque cible.</p>
+    <h3>3.4 Frontières réseau</h3>
+    <p>Les routes <code>/internal/**</code> ne sont pas publiées par la Gateway. En Kubernetes, une NetworkPolicy autorise précisément Submission à atteindre Identity et Challenge. Cette défense réseau réduit l'exposition mais ne remplace jamais la validation cryptographique.</p>
+    <div class="footer"><span>Architecture</span><span>5</span></div>
+  </section>
+
+  <section>
+    <h2>4. Fonctionnement détaillé</h2>
+    <h3>4.1 Émission du jeton</h3>
+    <ol><li>Submission s'authentifie auprès de l'endpoint interne de Identity avec son identifiant et son secret client.</li><li>Identity calcule SHA-256 du secret reçu et effectue une comparaison en temps constant avec le digest configuré.</li><li>Identity vérifie que l'audience demandée est autorisée pour ce client.</li><li>Le service signe un JWT RS256 contenant le sujet, l'audience, le scope et la courte expiration.</li></ol>
+    <h3>4.2 Séquence de soumission</h3>
+    <pre>Client          Gateway       Submission          Identity          Challenge
+  | POST + JWT     |              |                  |                  |
+  |--------------->| validate     |                  |                  |
+  |                |------------->| validate user JWT|                  |
+  |                |              |-- token(identity) ---------------->|
+  |                |              |-- verify user --->|                 |
+  |                |              |<-- eligible -------|                |
+  |                |              |-- token(challenge) ----------------|
+  |                |              |-- validate policy ---------------->|
+  |                |              |<-- active/open ---------------------|
+  |                |              | persist in one transaction         |
+  |<---------------|<-------------| 200 + correlation ID               |</pre>
+    <h3>4.3 Atomicité et erreurs</h3>
+    <table><thead><tr><th>Résultat</th><th>HTTP</th><th>Comportement</th></tr></thead><tbody>
+      <tr><td>Jeton absent, invalide, expiré ou mauvais type</td><td>401</td><td>Aucune logique métier.</td></tr>
+      <tr><td>Jeton valide, autorité insuffisante</td><td>403</td><td>Audience, appelant ou scope refusé.</td></tr>
+      <tr><td>Utilisateur/challenge non éligible</td><td>404 / 422</td><td>Refus métier, aucune soumission créée.</td></tr>
+      <tr><td>Autorité de service rejetée</td><td>502</td><td>Erreur de configuration interservices.</td></tr>
+      <tr><td>Émetteur ou service aval indisponible</td><td>503</td><td>Échec fermé, aucune écriture.</td></tr>
+    </tbody></table>
+    <h3>4.4 Observabilité sans fuite</h3>
+    <p>La Gateway crée ou assainit <code>X-Correlation-Id</code>. Submission le propage à Identity et Challenge; chaque service l'ajoute à son contexte de logs. Les bearer tokens, secrets clients et hashes ne sont jamais écrits dans les journaux.</p>
+    <div class="footer"><span>Fonctionnement</span><span>6</span></div>
+  </section>
+
+  <section>
+    <h2>5. Mise en place et configuration</h2>
+    <h3>5.1 Prérequis et import IntelliJ</h3>
+    <ul><li>Java 21 et Maven 3.9+;</li><li>Docker avec Compose v2;</li><li>OpenSSL et curl;</li><li>ouvrir le dossier extrait dans IntelliJ, choisir le SDK 21 et importer les <code>pom.xml</code> détectés sous <code>services/</code>.</li></ul>
+    <h3>5.2 Initialisation locale</h3>
+    <pre>cp .env.example .env
+# remplacer les mots de passe DB, RabbitMQ et Grafana
+bash scripts/generate-jwt-keys.sh --write-env .env
+bash scripts/generate-service-credentials.sh --write-env .env</pre>
+    <p>Les scripts écrivent directement les clés dans <code>.env</code>, qui est ignoré par Git. Ils évitent d'afficher les secrets dans l'historique du terminal.</p>
+    <h3>5.3 Variables principales</h3>
+    <table><thead><tr><th>Variable</th><th>Consommateur</th><th>Rôle</th></tr></thead><tbody>
+      <tr><td><code>JWT_PRIVATE_KEY</code></td><td>Identity</td><td>Signature RS256 uniquement.</td></tr>
+      <tr><td><code>JWT_PUBLIC_KEY</code></td><td>Gateway, Submission, Challenge</td><td>Validation sans capacité d'émission.</td></tr>
+      <tr><td><code>SERVICE_JWT_EXPIRATION_SECONDS</code></td><td>Identity</td><td>120 secondes par défaut.</td></tr>
+      <tr><td><code>SUBMISSION_SERVICE_CLIENT_ID</code></td><td>Identity, Submission</td><td>Identité stable de l'appelant.</td></tr>
+      <tr><td><code>SUBMISSION_SERVICE_CLIENT_SECRET</code></td><td>Submission</td><td>Credential brut injecté au runtime.</td></tr>
+      <tr><td><code>...SECRET_SHA256</code></td><td>Identity</td><td>Digest de comparaison, jamais le secret brut.</td></tr>
+    </tbody></table>
+    <h3>5.4 Démarrage et vérification</h3>
+    <pre>docker compose up -d --build
+bash scripts/test-service-security.sh
+bash scripts/build-microservices.sh
+mvn -B verify</pre>
+    <p>La démonstration d'attaque utilise <code>docker-compose.security-test.yml</code>, qui expose uniquement sur loopback Identity, Challenge et Submission. Le guide linéaire complet se trouve dans <code>docs/security/EVALUATOR_QUICKSTART.md</code>.</p>
+    <div class="footer"><span>Installation et configuration</span><span>7</span></div>
+  </section>
+
+  <section>
+    <h2>6. Validation expérimentale</h2>
+    <div class="callout success"><strong>État au 23 novembre 2026 :</strong> construction complète réussie, matrice de sécurité réussie et scénario Docker exécuté depuis des volumes vides. Les résultats sont reproductibles par script.</div>
+    <h3>6.1 Résultats HTTP</h3>
+    <table><thead><tr><th>Essai</th><th>Attendu</th><th>Observé</th></tr></thead><tbody>
+      <tr><td>Jeton absent ou malformé</td><td>401</td><td><span class="status">401 PASS</span></td></tr>
+      <tr><td>JWT utilisateur sur endpoint service</td><td>401</td><td><span class="status">401 PASS</span></td></tr>
+      <tr><td>En-têtes d'identité usurpés</td><td>401</td><td><span class="status">401 PASS</span></td></tr>
+      <tr><td>Jeton Identity réutilisé sur Challenge</td><td>403</td><td><span class="status">403 PASS</span></td></tr>
+      <tr><td>Endpoint interne via Gateway</td><td>404</td><td><span class="status">404 PASS</span></td></tr>
+      <tr><td>Identity refuse l'utilisateur</td><td>422 + 0 écriture</td><td><span class="status">PASS</span></td></tr>
+      <tr><td>Challenge expiré</td><td>422 + 0 écriture</td><td><span class="status">PASS</span></td></tr>
+      <tr><td>Utilisateur valide + challenge ouvert</td><td>200</td><td><span class="status">200 PASS</span></td></tr>
+    </tbody></table>
+    <h3>6.2 Niveaux de preuve</h3>
+    <div class="grid2"><div class="card"><strong>Tests unitaires</strong><p>Claims, validateurs, registre de client, autorisation exacte, politique de challenge et orchestration sans écriture partielle.</p></div><div class="card"><strong>Tests runtime</strong><p>Vrais appels HTTP, vrais JWT, découverte de services, MariaDB et contrôle du nombre de lignes.</p></div><div class="card"><strong>CI</strong><p>Le script de matrice sécurité est appelé par GitHub Actions avec les builds Maven.</p></div><div class="card"><strong>Traçabilité</strong><p>Un identifiant de corrélation commun relie les décisions des trois services sans révéler le bearer.</p></div></div>
+    <h3>6.3 Reproductibilité</h3>
+    <pre>docker compose -p mindarena-security-qa \
+  -f docker-compose.yml -f docker-compose.security-test.yml up -d --build
+COMPOSE_PROJECT_NAME=mindarena-security-qa bash scripts/smoke-service-security.sh
+# Runtime service-security smoke checks passed.</pre>
+    <p>La table exhaustive et les commandes exactes sont conservées dans <code>docs/report/VALIDATION_EVIDENCE.md</code>.</p>
+    <div class="footer"><span>Validation expérimentale</span><span>8</span></div>
+  </section>
+
+  <section>
+    <h2>7. Analyse de sécurité</h2>
+    <table><thead><tr><th>Menace</th><th>Contrôle</th><th>Risque résiduel</th></tr></thead><tbody>
+      <tr><td>Usurpation de service</td><td>Client enregistré, secret entropique, digest SHA-256 comparé en temps constant.</td><td>Rotation nécessaire après suspicion de fuite.</td></tr>
+      <tr><td>Vol/rejeu de jeton</td><td>Expiration 120 s, audience et scope étroits, absence de logs de jetons.</td><td>Rejeu possible pendant la courte fenêtre; TLS obligatoire hors local.</td></tr>
+      <tr><td>Élévation de privilège</td><td>Rejet par défaut; appelant, audience et scope exacts.</td><td>Révision de politique à chaque nouveau service.</td></tr>
+      <tr><td>Accès direct</td><td>Resource Server sur chaque endpoint interne + NetworkPolicy.</td><td>Le contrôle d'hôte/cluster reste une responsabilité infrastructure.</td></tr>
+      <tr><td>Confusion user/service</td><td><code>token_use</code>, issuer, audience, sujet et validateurs distincts.</td><td>Clés de signature séparées possibles en durcissement futur.</td></tr>
+      <tr><td>Usurpation d'en-tête</td><td>Identité utilisateur dérivée du JWT signé, jamais de <code>X-User-*</code>.</td><td>Ne pas publier directement les ports de domaine.</td></tr>
+      <tr><td>Fuite de clé privée</td><td>Clé privée injectée dans Identity seulement.</td><td>Secret manager/HSM et rotation automatisée en production.</td></tr>
+      <tr><td>Panne d'un aval</td><td>Échec fermé, 503 cohérent, aucune écriture avant les deux accords.</td><td>Circuit breaker et budgets de timeout à ajouter à grande échelle.</td></tr>
+    </tbody></table>
+    <h3>7.1 Avantages du choix</h3>
+    <ul><li>validation locale rapide et disponibilité indépendante de Identity après émission;</li><li>moindre privilège visible dans le jeton et le code;</li><li>clé privée non distribuée;</li><li>tests négatifs précis et diagnostic lisible;</li><li>intégration légère avec Spring Security.</li></ul>
+    <h3>7.2 Inconvénients</h3>
+    <ul><li>révocation non instantanée d'un JWT autoporté;</li><li>gestion opérationnelle de la rotation des clés et credentials;</li><li>risque de prolifération des scopes;</li><li>le JWT ne chiffre pas son contenu;</li><li>le transport doit rester protégé séparément.</li></ul>
+    <div class="footer"><span>Analyse de sécurité</span><span>9</span></div>
+  </section>
+
+  <section>
+    <h2>8. Limites et perspectives</h2>
+    <h3>8.1 Limites actuelles</h3>
+    <p>Cette solution est une implémentation académique solide, pas un produit d'identité complet. Elle couvre un chemin métier délimité. Le secret client est injecté par environnement; la clé publique est configurée statiquement; la révocation dépend de la courte expiration; les pannes sont mappées proprement mais sans circuit breaker avancé.</p>
+    <h3>8.2 Améliorations prioritaires</h3>
+    <ol><li><strong>TLS/mTLS.</strong> Chiffrer tous les liens et éventuellement ajouter une identité de transport.</li><li><strong>Serveur OAuth 2.0.</strong> Remplacer l'émetteur minimal par Spring Authorization Server ou Keycloak pour la découverte, la rotation et l'administration.</li><li><strong>JWKS + rotation.</strong> Publier plusieurs clés avec <code>kid</code> et période de chevauchement.</li><li><strong>Secret manager.</strong> Utiliser Vault ou le gestionnaire du cloud au lieu de variables statiques.</li><li><strong>Résilience.</strong> Timeouts, circuit breakers, métriques d'échecs d'autorisation et alertes.</li><li><strong>Gouvernance.</strong> Catalogue de scopes, revue périodique et tests de non-régression des politiques.</li></ol>
+    <h3>8.3 Pourquoi ne pas tout ajouter maintenant ?</h3>
+    <p>La sécurité dépend aussi de la simplicité et de la capacité à vérifier les hypothèses. Ajouter simultanément PKI, serveur OAuth, mesh, moteur ABAC et rotation automatique aurait élargi la surface d'erreur et masqué la contribution centrale. L'architecture choisie montre clairement chaque décision, tout en gardant une trajectoire d'industrialisation.</p>
+    <h3>Conclusion</h3>
+    <div class="callout success">MindArena démontre qu'une requête tri-microservices peut respecter Zero Trust sans dépendre de la seule position réseau. Submission prouve son identité, reçoit uniquement deux permissions ciblées, et chaque service cible décide localement. La matrice expérimentale confirme le succès autorisé, le refus des abus et l'absence d'état partiel.</div>
+    <h3>Références</h3>
+    <ol class="small"><li>IETF, RFC 7519 — JSON Web Token (JWT), 2015.</li><li>IETF, RFC 6749 — The OAuth 2.0 Authorization Framework, 2012.</li><li>IETF, RFC 8705 — OAuth 2.0 Mutual-TLS Client Authentication, 2020.</li><li>NIST SP 800-207 — Zero Trust Architecture, 2020.</li><li>Spring Security Reference — OAuth 2.0 Resource Server / JWT.</li><li>OWASP — Microservices Security Cheat Sheet.</li></ol>
+    <div class="footer"><span>Limites, perspectives et conclusion</span><span>10</span></div>
+  </section>
+
+  <section>
+    <h2>Annexe A — Correspondance avec le sujet</h2>
+    <table><thead><tr><th>Demande du sujet</th><th>Réponse MindArena</th><th>Preuve</th></tr></thead><tbody>
+      <tr><td>Solution d'authentification/autorisation</td><td>JWT RS256 + identité de service + scopes.</td><td>Sections 2 à 4; code Spring Security.</td></tr>
+      <tr><td>Trois microservices pour une requête client</td><td>Submission, Identity et Challenge.</td><td>Scénario et smoke test complet.</td></tr>
+      <tr><td>Avantages/inconvénients et critères</td><td>Comparaison JWT, mTLS, OAuth2 et modèles RBAC/ABAC/PBAC/ReBAC.</td><td>Sections 2, 7 et 8.</td></tr>
+      <tr><td>Architecture et fonctionnement</td><td>Placement des clés, claims, politique et séquence.</td><td>Sections 3 et 4.</td></tr>
+      <tr><td>Installation et configuration</td><td>Java 21, IntelliJ, génération de secrets, Compose et commandes.</td><td>Section 5 + guide évaluateur.</td></tr>
+      <tr><td>Implémentation Java importable IntelliJ</td><td>Spring Boot 3 / Java 21, POM Maven par service, aucun fichier IDE requis.</td><td>Archive source contrôlée.</td></tr>
+    </tbody></table>
+    <h2>Annexe B — Checklist avant Moodle</h2>
+    <ul style="list-style:none;padding-left:0">
+      <li>☐ Remplacer les deux noms du binôme sur la couverture.</li>
+      <li>☐ Ouvrir le PDF final et vérifier visuellement toutes les pages.</li>
+      <li>☐ Importer le ZIP final dans IntelliJ avec Java 21.</li>
+      <li>☐ Vérifier que le ZIP ne contient ni <code>.env</code>, ni clé, ni <code>target/</code>.</li>
+      <li>☐ Nommer clairement le PDF et l'archive avec le binôme.</li>
+      <li>☐ Déposer les deux fichiers avant le 24/11/2026 à minuit.</li>
+      <li>☐ Télécharger/prévisualiser les fichiers depuis Moodle et garder la confirmation.</li>
+    </ul>
+    <h3>Artefacts du dépôt</h3>
+    <ul><li><code>docs/security/EVALUATOR_QUICKSTART.md</code> — parcours court;</li><li><code>docs/security/service-to-service-security.md</code> — conception technique;</li><li><code>docs/report/VALIDATION_EVIDENCE.md</code> — résultats détaillés;</li><li><code>scripts/test-service-security.sh</code> — matrice automatisée;</li><li><code>scripts/smoke-service-security.sh</code> — preuve runtime;</li><li><code>scripts/create-delivery-archive.sh</code> — archive Git sans secrets.</li></ul>
+    <div class="callout warning"><strong>Action humaine obligatoire.</strong> Le dépôt ne peut ni connaître les noms du binôme ni déposer les livrables sur Moodle. Ces champs et la confirmation de dépôt doivent être complétés par les étudiants.</div>
+    <div class="footer"><span>Annexes</span><span>11</span></div>
+  </section>
+</main></body></html>

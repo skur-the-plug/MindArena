@@ -23,6 +23,11 @@ remaining deliverables, and safe collaboration workflow. The detailed security
 decision and threat model are in
 [service-to-service-security.md](docs/security/service-to-service-security.md).
 
+For a short evaluator path, use
+[EVALUATOR_QUICKSTART.md](docs/security/EVALUATOR_QUICKSTART.md). The print-ready
+French report and exact validation ledger are in
+[`docs/report/`](docs/report/).
+
 ## Architecture
 
 The default runtime is a Spring Cloud microservices backend:
