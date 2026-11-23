@@ -180,6 +180,7 @@ The next stage is evidence and presentation:
 3. Import the generated source archive in IntelliJ with Java 21 as a human check.
 4. Rehearse the demo and likely questions: why JWT instead of mTLS, why RS256,
    rotation/revocation, replay, Identity outage, audience vs scope, and default deny.
+   A timed script and answers are ready in `docs/report/PRESENTATION_GUIDE.md`.
 5. Upload the PDF and source archive to Moodle, reopen them, and retain confirmation.
 
 ## Collaboration rules
