@@ -35,7 +35,7 @@ Our selected solution is:
 | --- | --- | --- |
 | Clean pre-project baseline | Complete | Commit/tag `mindarena-clean-baseline` |
 | Three-service security implementation | Complete | Automated service-security tests and fresh Docker runtime smoke test |
-| Academic report and final delivery package | Ready pending administrative field and Moodle upload | ENSIAS LaTeX report, evidence ledger, evaluator guide, presentation guide and verified archive tooling added |
+| Academic report and final delivery package | Ready pending Moodle upload | ENSIAS LaTeX report, evidence ledger, evaluator guide, presentation guide and verified archive tooling added |
 
 The normal application still uses gateway-centered user authentication for
 several legacy flows. Do not claim that every MindArena service call is secured.
@@ -175,12 +175,11 @@ for negative security probes. Normal Compose does not publish those ports.
 Do not redesign the implementation unless a failing test proves it necessary.
 The next stage is evidence and presentation:
 
-1. Replace `[À compléter]` on the report cover with the teacher/encadrant name.
-2. Import the generated source archive in IntelliJ with Java 21 as a human check.
-3. Rehearse the demo and likely questions: why JWT instead of mTLS, why RS256,
+1. Import the generated source archive in IntelliJ with Java 21 as a human check.
+2. Rehearse the demo and likely questions: why JWT instead of mTLS, why RS256,
    rotation/revocation, replay, Identity outage, audience vs scope, and default deny.
    A timed script and answers are ready in `docs/report/PRESENTATION_GUIDE.md`.
-4. Upload the PDF and source archive to Moodle, reopen them, and retain confirmation.
+3. Upload the PDF and source archive to Moodle, reopen them, and retain confirmation.
 
 ## Collaboration rules
 

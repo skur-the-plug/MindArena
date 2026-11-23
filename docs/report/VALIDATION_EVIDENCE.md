@@ -63,7 +63,7 @@ These items cannot be truthfully automated by the repository:
 - [x] Add Anas Houhou and Amr Azirar to the report cover.
 - [x] Compile twice and visually inspect the 32-page ENSIAS PDF, contact sheet,
   cover and all figure-heavy pages.
-- [ ] Replace the remaining teacher/encadrant `[À compléter]` field.
+- [x] Add the encadrant, M. Driss BOUZIDI, to the report cover.
 - [ ] Import the final ZIP into IntelliJ IDEA with Java 21 on the evaluator path.
 - [ ] Optionally add two sanitized screenshots from the demo to the report.
 - [ ] Upload the PDF and source ZIP to Moodle before 24 November 2026 midnight.
