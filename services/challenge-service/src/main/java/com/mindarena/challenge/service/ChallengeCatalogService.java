@@ -9,8 +9,11 @@ import com.mindarena.challenge.repository.ChallengeRepository;
 import com.mindarena.challenge.repository.UserRepository;
 import java.util.Comparator;
 import java.util.List;
+import java.time.LocalDateTime;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class ChallengeCatalogService {
@@ -32,6 +35,17 @@ public class ChallengeCatalogService {
     public Challenge requireChallenge(Long id) {
         return challengeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Challenge not found"));
+    }
+
+    public Challenge requireOpenForSubmission(Long id) {
+        Challenge challenge = requireChallenge(id);
+        if (!challenge.isActive()) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Challenge is not active");
+        }
+        if (challenge.getDeadline() != null && challenge.getDeadline().isBefore(LocalDateTime.now())) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Challenge deadline has passed");
+        }
+        return challenge;
     }
 
     public List<Challenge> activeChallenges(String sort, String difficulty) {

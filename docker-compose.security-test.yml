@@ -1,0 +1,10 @@
+services:
+  identity:
+    ports:
+      - "127.0.0.1:18081:8080"
+  challenge:
+    ports:
+      - "127.0.0.1:18082:8080"
+  submission:
+    ports:
+      - "127.0.0.1:18083:8080"

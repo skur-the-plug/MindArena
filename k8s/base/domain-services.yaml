@@ -64,6 +64,16 @@ spec:
                 configMapKeyRef:
                   name: mindarena-config
                   key: jwt-refresh-expiration-days
+            - name: SUBMISSION_SERVICE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: mindarena-secrets
+                  key: submission-service-client-id
+            - name: SUBMISSION_SERVICE_CLIENT_SECRET_SHA256
+              valueFrom:
+                secretKeyRef:
+                  name: mindarena-secrets
+                  key: submission-service-client-secret-sha256
           securityContext:
             runAsNonRoot: true
             allowPrivilegeEscalation: false
@@ -141,6 +151,11 @@ spec:
                 secretKeyRef:
                   name: mindarena-secrets
                   key: db-password
+            - name: JWT_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mindarena-secrets
+                  key: jwt-public-key
           securityContext:
             runAsNonRoot: true
             allowPrivilegeEscalation: false
@@ -382,6 +397,21 @@ spec:
                 secretKeyRef:
                   name: mindarena-secrets
                   key: db-password
+            - name: SUBMISSION_SERVICE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: mindarena-secrets
+                  key: submission-service-client-id
+            - name: SUBMISSION_SERVICE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: mindarena-secrets
+                  key: submission-service-client-secret
+            - name: JWT_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mindarena-secrets
+                  key: jwt-public-key
           securityContext:
             runAsNonRoot: true
             allowPrivilegeEscalation: false

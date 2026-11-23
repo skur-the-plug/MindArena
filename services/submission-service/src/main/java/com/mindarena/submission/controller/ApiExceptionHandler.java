@@ -1,5 +1,8 @@
 package com.mindarena.submission.controller;
 
+import com.mindarena.submission.service.BusinessRuleException;
+import com.mindarena.submission.service.DownstreamSecurityException;
+import com.mindarena.submission.service.DownstreamUnavailableException;
 import java.time.Instant;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +28,21 @@ public class ApiExceptionHandler {
                 ? HttpStatus.NOT_FOUND
                 : HttpStatus.BAD_REQUEST;
         return error(status, exception.getMessage());
+    }
+
+    @ExceptionHandler(BusinessRuleException.class)
+    ResponseEntity<ApiError> businessRule(BusinessRuleException exception) {
+        return error(exception.status(), exception.getMessage());
+    }
+
+    @ExceptionHandler(DownstreamSecurityException.class)
+    ResponseEntity<ApiError> downstreamSecurity(DownstreamSecurityException exception) {
+        return error(HttpStatus.BAD_GATEWAY, exception.getMessage());
+    }
+
+    @ExceptionHandler(DownstreamUnavailableException.class)
+    ResponseEntity<ApiError> downstreamUnavailable(DownstreamUnavailableException exception) {
+        return error(HttpStatus.SERVICE_UNAVAILABLE, exception.getMessage());
     }
 
     private ResponseEntity<ApiError> error(HttpStatus status, String message) {

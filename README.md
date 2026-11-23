@@ -9,6 +9,20 @@ This repository is structured as a development/staging DevOps platform
 for an academic MVP. It is not presented as an enterprise production
 platform.
 
+## Secure Systems Project
+
+MindArena is also being used for the secure distributed-systems assignment
+due **24 November 2026 before midnight**. The focused contribution secures a
+real three-service flow—Submission → Identity + Challenge—using short-lived
+RS256 service JWTs and least-privilege scopes.
+
+If you are a project partner or coding agent, start with
+[PROJECT_HANDOFF.md](docs/security/PROJECT_HANDOFF.md). It contains the PDF
+requirements, current status, architectural boundaries, verification commands,
+remaining deliverables, and safe collaboration workflow. The detailed security
+decision and threat model are in
+[service-to-service-security.md](docs/security/service-to-service-security.md).
+
 ## Architecture
 
 The default runtime is a Spring Cloud microservices backend:
@@ -119,6 +133,7 @@ file without printing the private key:
 
 ```bash
 bash scripts/generate-jwt-keys.sh --write-env .env
+bash scripts/generate-service-credentials.sh --write-env .env
 ```
 
 ```bash
@@ -155,11 +170,12 @@ accept caller-supplied user IDs in request bodies. Gateway service
 discovery routes are disabled; only the explicit `/api/**` routes are
 intended for clients.
 
-This clean baseline does not yet implement service-to-service identity or
-authorization. Domain services trust identity headers inserted by the gateway,
-and no current client request requires three domain services to collaborate.
-Interservice authentication is intentionally reserved for the secure-systems
-project branch rather than being claimed as an existing platform capability.
+The secure submission flow implements service-to-service authentication and
+authorization across Identity, Challenge, and Submission. Submission obtains
+short-lived RS256 service tokens with a target audience and least-privilege scope;
+receiving services enforce the caller, audience, scope, expiry, issuer, and
+`token_use=service`. See
+[docs/security/service-to-service-security.md](docs/security/service-to-service-security.md).
 
 The extracted services use separate local schemas. Some service schemas
 contain read/projection copies of user, arena, challenge, or submission
@@ -277,5 +293,5 @@ Production hardening still required:
 - Ingress, TLS, and production DNS.
 - Centralized logs and distributed tracing.
 - Signed images and admission policies.
-- Service-to-service authentication and least-privilege authorization.
+- Extend service authentication beyond the secured submission flow and move keys/credentials to a production secret manager.
 - Stronger test coverage and release promotion gates.

@@ -11,10 +11,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 @RestController
 @RequestMapping("/api/submissions")
@@ -36,8 +37,8 @@ public class SubmissionApiController {
     }
 
     @PostMapping
-    public SubmissionPayload submit(@Valid @RequestBody SubmissionRequest request, @RequestHeader("X-User-Id") Long currentUserId) {
-        return SubmissionPayload.from(submissionService.submit(request, currentUserId));
+    public SubmissionPayload submit(@Valid @RequestBody SubmissionRequest request, @AuthenticationPrincipal Jwt userToken) {
+        return SubmissionPayload.from(submissionService.submit(request, userId(userToken)));
     }
 
     @GetMapping("/{id}/comments")
@@ -49,13 +50,17 @@ public class SubmissionApiController {
     public CommentPayload comment(
             @PathVariable Long id,
             @Valid @RequestBody CommentRequest request,
-            @RequestHeader("X-User-Id") Long currentUserId
+            @AuthenticationPrincipal Jwt userToken
     ) {
-        return CommentPayload.from(submissionService.comment(id, request, currentUserId));
+        return CommentPayload.from(submissionService.comment(id, request, userId(userToken)));
     }
 
     @PostMapping("/{id}/upvote")
-    public SubmissionPayload upvote(@PathVariable Long id, @RequestHeader("X-User-Id") Long currentUserId) {
-        return SubmissionPayload.from(submissionService.upvote(id, currentUserId));
+    public SubmissionPayload upvote(@PathVariable Long id, @AuthenticationPrincipal Jwt userToken) {
+        return SubmissionPayload.from(submissionService.upvote(id, userId(userToken)));
+    }
+
+    private Long userId(Jwt userToken) {
+        return Long.valueOf(userToken.getSubject());
     }
 }

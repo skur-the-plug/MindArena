@@ -26,6 +26,8 @@ jobs:
         run: mvn -B verify
       - name: Build microservices
         run: bash scripts/build-microservices.sh
+      - name: Run service-security matrix
+        run: bash scripts/test-service-security.sh
       - name: SonarCloud analysis
         if: ${{ env.SONAR_TOKEN != '' }}
         env:
